@@ -5,7 +5,10 @@
 
 ## Load packages
 library(tidyverse) # Load the tidyverse libraries
+library(lubridate) #Date management
 library(here) # Load the here package
+
+here <- here::here
 
 ## Process data
 # All files have the same structure.
@@ -42,8 +45,10 @@ all_indices <- nino3 %>%
   left_join(nino4anom, by = c("year", "month")) %>% 
   left_join(soi, by = c("year", "month")) %>% 
   mutate(date = paste0("01", month, year, sep = "/"),
-         date = lubridate::dmy(date)) %>% 
-  select(year, month, date, everything())
+         date = dmy(date),
+         month_n = month(date)) %>% 
+  select(year, month, month_n, date, everything()) %>% 
+  arrange(year, month_n)
 
-#
+# Export the data
 write.csv(all_indices, file = here("data","all_indices.csv"), row.names = F)
