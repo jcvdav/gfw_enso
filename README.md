@@ -1,4 +1,4 @@
-#GFW_ENSO
+# GFW_ENSO
 
 ## Repo structure
 
