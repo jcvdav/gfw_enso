@@ -7,7 +7,7 @@ gfw_enso:
 ├───data
 ├───docs
 ├───raw_data
-│   ├───gfw_chn
+│   ├───GFW
 │   └───indices
 └───scripts
 ```
