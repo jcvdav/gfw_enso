@@ -1,0 +1,214 @@
+---
+title: "GFW + ENSO"
+subtitle: ""
+author: ""
+date: "04/09/2018"
+output:
+  xaringan::moon_reader:
+    css: ["css/sfg-template.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+class: center
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Nino 3 index
+
+```{r, echo = F}
+## Load packages
+suppressPackageStartupMessages({
+  library(lubridate)
+  library(tidyverse)
+  library(here)
+  library(commarobust)
+  library(ggrepel)
+})
+
+here <- here::here
+
+## Seasonal
+
+all_indices <- read.csv(here("data","all_indices.csv"),
+                        stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall"))
+
+wanted_gears <- c("purse_seines", "trawlers", "drifting_longlines")
+
+
+## Monthly hours
+
+#This is the same as the csv in raw_data
+month <- readRDS(here("data","asian_countries_foreign_fishing_year_month_season_vessel.rds"))
+
+month_nino3 <- all_indices %>% 
+  select(year, month = month_n, nino3anom)
+
+month_indices <- left_join(month, month_nino3, by = c("year", "month"))
+```
+
+```{r, echo = F}
+plot1 <- all_indices %>%
+  filter(year > 1950) %>% 
+  mutate(date = lubridate::date(date)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = date, y = nino3anom)) +
+  geom_rect(aes(xmin = date("2012-01-01"), xmax = date("2018-01-01"), ymin = -Inf, ymax = Inf), fill = "lightgray") +
+  geom_text(x = date("2014-12-01"), y = 3.2, label = "GFW") +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  cowplot::theme_cowplot() +
+  geom_hline(yintercept = 0, linetype = "dashed")
+
+plot2 <- all_indices %>% 
+  filter(year > 2011) %>%
+  mutate(date = lubridate::date(date),
+         state = ifelse(nino3anom < 0, 0, 1)) %>%
+  ggplot(aes(x = date, y = nino3anom)) +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  cowplot::theme_cowplot() +
+  geom_hline(yintercept = 0, linetype = "dashed")
+
+cowplot::plot_grid(plot1, plot2, ncol = 1)
+```
+
+---
+class: center
+
+# Foreign Fishing (FF) activity
+
+```{r, echo = F}
+plot3 <- month_indices %>% 
+  filter(is_foreign,
+         fishing,
+         inferred_label %in% wanted_gears) %>% 
+  group_by(year, month, inferred_label) %>% 
+  summarize(hours = sum(hours),
+            nino3anom = mean(nino3anom)) %>% 
+  ungroup() %>% 
+  mutate(date = date(paste(year, month, "01", sep = "-")),
+         gear = case_when(date == "2016-01-01" ~ inferred_label,
+                          TRUE ~ "")) %>% 
+  ggplot(aes(x = date, y = hours, group = inferred_label)) +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  cowplot::theme_cowplot() +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  labs(y = "FF hours") +
+  geom_text_repel(aes(label = gear), min.segment.length = 0)
+
+plot4 <- month_indices %>% 
+  filter(is_foreign,
+         fishing,
+         inferred_label %in% wanted_gears) %>% 
+  group_by(year, month, inferred_label, mmsi, nino3anom) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(year, month, inferred_label) %>% 
+  summarize(vessels = n(),
+            nino3anom = mean(nino3anom)) %>% 
+  ungroup() %>% 
+  mutate(date = date(paste(year, month, "01", sep = "-"))) %>% 
+  ggplot(aes(x = date, y = vessels, group = inferred_label)) +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  cowplot::theme_cowplot() +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  labs(y = "FF vesels")
+
+cowplot::plot_grid(plot3, plot4, ncol = 1)
+```
+
+---
+
+```{r, echo = F, fig.height = 8.5, fig.width = 10.5}
+foreign_hours <- month_indices %>% 
+  filter(is_foreign,
+         fishing,
+         inferred_label %in% wanted_gears,
+         year < 2018) %>%
+  group_by(year, month, iso3, inferred_label, season, nino3anom) %>% 
+  summarize(hours = sum(hours)) %>% 
+  ungroup()
+
+ggplot(foreign_hours, aes(x = nino3anom, y = hours)) +
+  geom_point(aes(color = iso3), size = 2) +
+  cowplot::theme_cowplot() +
+  facet_wrap(season ~ inferred_label, scales = "free", ncol = 3) +
+  ggtitle("Foreign fishing hours") +
+  scale_color_brewer(palette = "Set1")
+```
+
+---
+
+```{r, echo = F, fig.height = 8.5, fig.width = 10.5}
+foreign_vessels <- month_indices %>% 
+  filter(is_foreign,
+         fishing,
+         inferred_label %in% wanted_gears,
+         year < 2018) %>%
+  group_by(year, month, iso3, inferred_label, season, nino3anom, mmsi) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(year, month, iso3, inferred_label, season, nino3anom) %>% 
+  summarize(vessels = n()) %>% 
+  ungroup()
+
+ggplot(foreign_vessels, aes(x = nino3anom, y = vessels)) +
+  geom_point(aes(color = iso3), size = 2) +
+  cowplot::theme_cowplot() +
+  facet_wrap(season ~ inferred_label, scales = "free", ncol = 3) +
+  ggtitle("Foreign fishing vessels") +
+  scale_color_brewer(palette = "Set1")
+
+```
+
+---
+
+```{r, results= "asis", echo = F}
+hours_model <- lm(hours ~ nino3anom + season + inferred_label, data = foreign_hours)
+hours_model_log <- lm(log(hours) ~ nino3anom + season + inferred_label, data = foreign_hours)
+
+vessels_model <- lm(vessels ~ nino3anom + season + inferred_label, data = foreign_vessels)
+vessels_model_log <- lm(log(vessels) ~ nino3anom + season + inferred_label, data = foreign_vessels)
+
+stargazer::stargazer(list(hours_model,
+                          hours_model_log,
+                          vessels_model,
+                          vessels_model_log),
+                     type = "html",
+                     single.row = T,
+                     se = makerobustseslist(hours_model,
+                                            hours_model_log,
+                                            vessels_model,
+                                            vessels_model_log),
+                     t.auto = T,
+                     p.auto = T,
+                     intercept.bottom = F,
+                     intercept.top = T, model.numbers = F, omit.stat = c("rsq", "n", "ser"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
