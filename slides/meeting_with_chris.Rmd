@@ -195,7 +195,9 @@ stargazer::stargazer(list(hours_model,
                      intercept.top = T, model.numbers = F, omit.stat = c("rsq", "n", "ser"))
 ```
 
-```{r}
+---
+
+```{r, echo = F}
 plot3 <- month_indices %>% 
   filter(fishing,
          inferred_label %in% wanted_gears) %>% 

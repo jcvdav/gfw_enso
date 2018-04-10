@@ -59,45 +59,7 @@ class: center
 &lt;tr&gt;&lt;td colspan="5" style="border-bottom: 1px solid black"&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style="text-align:left"&gt;&lt;em&gt;Note:&lt;/em&gt;&lt;/td&gt;&lt;td colspan="4" style="text-align:right"&gt;&lt;sup&gt;*&lt;/sup&gt;p&lt;0.1; &lt;sup&gt;**&lt;/sup&gt;p&lt;0.05; &lt;sup&gt;***&lt;/sup&gt;p&lt;0.01&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;
 
-
-```r
-plot3 &lt;- month_indices %&gt;% 
-  filter(fishing,
-         inferred_label %in% wanted_gears) %&gt;% 
-  group_by(year, month, inferred_label, is_foreign) %&gt;% 
-  summarize(hours = sum(hours),
-            nino3anom = mean(nino3anom)) %&gt;% 
-  ungroup() %&gt;% 
-  mutate(date = date(paste(year, month, "01", sep = "-")),
-         gear = case_when(date == "2016-01-01" ~ inferred_label,
-                          TRUE ~ "")) %&gt;% 
-  ggplot(aes(x = date, y = hours, group = inferred_label)) +
-  geom_line(aes(color = nino3anom), size = 1.5) +
-  cowplot::theme_cowplot() +
-  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
-  labs(y = "FF hours") +
-  facet_wrap(~is_foreign, scales = "free_y")
-
-plot4 &lt;- month_indices %&gt;% 
-  filter(fishing,
-         inferred_label %in% wanted_gears) %&gt;% 
-  group_by(year, month, inferred_label, mmsi, nino3anom, is_foreign) %&gt;% 
-  count() %&gt;% 
-  ungroup() %&gt;% 
-  group_by(year, month, inferred_label, is_foreign) %&gt;% 
-  summarize(vessels = n(),
-            nino3anom = mean(nino3anom)) %&gt;% 
-  ungroup() %&gt;% 
-  mutate(date = date(paste(year, month, "01", sep = "-"))) %&gt;% 
-  ggplot(aes(x = date, y = vessels, group = inferred_label)) +
-  geom_line(aes(color = nino3anom), size = 1.5) +
-  cowplot::theme_cowplot() +
-  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
-  labs(y = "FF vesels") +
-  facet_wrap(~is_foreign, scales = "free_y")
-
-cowplot::plot_grid(plot3, plot4, ncol = 1)
-```
+---
 
 ![](meeting_with_chris_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
 
