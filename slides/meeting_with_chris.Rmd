@@ -195,10 +195,88 @@ stargazer::stargazer(list(hours_model,
                      intercept.top = T, model.numbers = F, omit.stat = c("rsq", "n", "ser"))
 ```
 
+```{r}
+plot3 <- month_indices %>% 
+  filter(fishing,
+         inferred_label %in% wanted_gears) %>% 
+  group_by(year, month, inferred_label, is_foreign) %>% 
+  summarize(hours = sum(hours),
+            nino3anom = mean(nino3anom)) %>% 
+  ungroup() %>% 
+  mutate(date = date(paste(year, month, "01", sep = "-")),
+         gear = case_when(date == "2016-01-01" ~ inferred_label,
+                          TRUE ~ "")) %>% 
+  ggplot(aes(x = date, y = hours, group = inferred_label)) +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  cowplot::theme_cowplot() +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  labs(y = "FF hours") +
+  facet_wrap(~is_foreign, scales = "free_y")
 
+plot4 <- month_indices %>% 
+  filter(fishing,
+         inferred_label %in% wanted_gears) %>% 
+  group_by(year, month, inferred_label, mmsi, nino3anom, is_foreign) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(year, month, inferred_label, is_foreign) %>% 
+  summarize(vessels = n(),
+            nino3anom = mean(nino3anom)) %>% 
+  ungroup() %>% 
+  mutate(date = date(paste(year, month, "01", sep = "-"))) %>% 
+  ggplot(aes(x = date, y = vessels, group = inferred_label)) +
+  geom_line(aes(color = nino3anom), size = 1.5) +
+  cowplot::theme_cowplot() +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  labs(y = "FF vesels") +
+  facet_wrap(~is_foreign, scales = "free_y")
 
+cowplot::plot_grid(plot3, plot4, ncol = 1)
+```
 
+---
 
+```{r, echo = F}
+foreign_hours <- month_indices %>% 
+  filter(fishing,
+         inferred_label %in% wanted_gears,
+         year < 2018) %>%
+  group_by(year, month, iso3, inferred_label, season, nino3anom, is_foreign) %>% 
+  summarize(hours = sum(hours)) %>% 
+  ungroup()
+
+ggplot(foreign_hours, aes(x = nino3anom, y = log(hours))) +
+  geom_point(aes(color = iso3, shape = season), size = 2) +
+  cowplot::theme_cowplot() +
+  ggtitle("Foreign fishing hours") +
+  scale_color_brewer(palette = "Set1") +
+  facet_wrap(~is_foreign, scales = "free_y", ncol = 1) +
+  geom_smooth(method = "lm")
+  
+```
+
+---
+
+```{r, echo = F}
+foreign_vessels <- month_indices %>% 
+  filter(fishing,
+         inferred_label %in% wanted_gears,
+         year < 2018) %>%
+  group_by(year, month, iso3, inferred_label, season, nino3anom, mmsi, is_foreign) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(year, month, iso3, inferred_label, season, nino3anom, is_foreign) %>% 
+  summarize(vessels = n()) %>% 
+  ungroup()
+
+ggplot(foreign_vessels, aes(x = nino3anom, y = log(vessels))) +
+  geom_point(aes(color = iso3, shape = season), size = 2) +
+  cowplot::theme_cowplot() +
+  ggtitle("Foreign fishing hours") +
+  scale_color_brewer(palette = "Set1") +
+  facet_wrap(~is_foreign, scales = "free_y", ncol = 1) +
+  geom_smooth(method = "lm")
+```
 
 
 
