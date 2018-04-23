@@ -1,0 +1,120 @@
+---
+title: "Untitled"
+author: "Juan Carlos Villaseñor-Derbez"
+date: "16 de abril de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+## Load packages
+suppressPackageStartupMessages({
+  library(lubridate)
+  library(tidyverse)
+  library(here)
+})
+
+here <- here::here
+
+## Seasonal
+
+all_indices <- read.csv(here("data","all_indices.csv"),
+                        stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall"))
+
+wanted_gears <- c("purse_seines", "trawlers", "drifting_longlines")
+
+
+## Monthly hours
+
+#This is the same as the csv in raw_data
+month <- readRDS(here("data","foreign_fishing_year_month_season_vessel.rds"))
+
+month_nino3 <- all_indices %>% 
+  select(year, month = month_n, nino3anom)
+
+month_indices <- left_join(month, month_nino3, by = c("year", "month")) %>% 
+  mutate(date = date(paste(year, month, "15", sep = "-"))) %>% 
+  filter(inferred_label %in% wanted_gears)
+```
+
+Where is China ff'ing?
+
+```{r, fig.height = 10, fig.width = 6}
+month_indices %>% 
+  filter(iso3 == "CHN",
+         is_foreign,
+         fishing) %>% 
+  group_by(eez_iso3) %>% 
+  mutate(total_hours = sum(hours)) %>% 
+  group_by(year, eez_iso3, total_hours) %>% 
+  summarize(hours = sum(hours),
+            nino3anom_max = max(nino3anom)) %>% 
+  ungroup() %>% 
+  transform(eez_iso3 = reorder(eez_iso3, total_hours)) %>% 
+  ggplot(aes(x = eez_iso3, y = hours, fill = nino3anom_max)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_gradientn(colors = colorRamps::matlab.like(20)) +
+  theme(axis.text = element_text(size = 5))
+```
+
+When is China ff'ing?
+
+```{r}
+month_indices %>% 
+  filter(iso3 == "CHN",
+         is_foreign,
+         fishing) %>% 
+  group_by(date, nino3anom, eez_iso3, inferred_label) %>% 
+  summarize(hours = sum(hours)) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = nino3anom, y = hours, group = eez_iso3, color = nino3anom)) +
+  geom_point() +
+  theme(legend.position = "none") +
+  scale_color_gradientn(colors = colorRamps::matlab.like(20))
+    
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
