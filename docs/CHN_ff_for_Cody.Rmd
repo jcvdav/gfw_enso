@@ -1,0 +1,79 @@
+---
+title: "Foreign Fishing by Chinese Vessels"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+```
+
+```{r}
+suppressPackageStartupMessages({
+  library(lubridate)
+  library(tidyverse)
+  library(here)
+  library(kableExtra)
+})
+
+here <- here::here
+
+## Seasonal
+
+all_indices <- read.csv(here("data","all_indices.csv"),
+                        stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall"))
+
+wanted_gears <- c("purse_seines", "trawlers", "drifting_longlines")
+
+
+## Monthly hours
+
+#This is the same as the csv in raw_data
+month <- readRDS(here("data","foreign_fishing_year_month_season_vessel.rds"))
+
+month_nino3 <- all_indices %>% 
+  select(year, month = month_n, nino3anom)
+
+month_indices <- left_join(month, month_nino3, by = c("year", "month")) %>% 
+  mutate(date = date(paste(year, month, "15", sep = "-"))) %>% 
+  filter(inferred_label %in% wanted_gears)
+```
+
+```{r}
+ff_legal <- c("American Samoa", "Northern Mariana Islands", "Cook Islands", "Micronesia (Federated States of)", "Fiji", "French Polynesia", "Guam", "Kiribati", "Marshall Islands", "Nauru", "New Caledonia", "Niue", "Palau", "Papua New Guinea", "Philippines", "Samoa", "Solomon Islands", "Chinese Taipei", "Tokelau", "Tonga", "Tuvalu", "Vanuatu")
+
+month_indices %>% 
+  filter(iso3 == "CHN",
+         is_foreign,
+         fishing) %>% 
+  mutate(country = countrycode::countrycode(sourcevar = eez_iso3,
+                                            origin = "iso3c",
+                                            destinatio = "country.name")) %>%
+  group_by(country, inferred_label) %>% 
+  summarize(hours = sum(hours, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(total = hours,
+         hours = 1) %>% 
+  drop_na() %>% 
+  spread(inferred_label, hours, fill = NA) %>% 
+  arrange(desc(total)) %>% 
+  group_by(country) %>% 
+  summarize_all(sum, na.rm = T) %>% 
+  ungroup() %>% 
+  arrange(desc(total)) %>%
+  mutate(in_list = ifelse(country %in% ff_legal, "*", "")) %>% 
+  select(-total) %>% 
+  kable(format = "latex",
+        caption = "List countries and geartypes where China has had at least one hour of foreign fishing activity between 2012 and 2018, as identified by Global Fishing Watch (www.globalfishingwatch.org). An asterisk (*) indicates knowledge of an existing agreement. Countries are sorted in descending order according to the total ammount of foreign fishing hours.",
+        col.names = c("Country", "Drifting longlines", "Purse seines", "Trawlers", "Known"),
+        longtable = T,
+        booktabs = T) %>% 
+  kableExtra::kable_styling()
+```
+
+
+

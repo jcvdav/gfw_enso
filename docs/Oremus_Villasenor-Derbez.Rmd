@@ -1,0 +1,288 @@
+---
+header-includes:
+  - \usepackage{setspace}
+  - \doublespacing
+  - \usepackage{lineno}
+  - \linenumbers
+title: "ENSO increases foreign fishing"
+author:
+  - Kimberly Oremus^1^
+  - Juan Carlos Villaseñor-Derbez^1^
+date: ^1^Bren School of Environmental Science & Management, University of California, Santa Barbara
+abstract: |
+  Illegal, unreported and unregulated (IUU) fishing contributes to x% of the global fishing ecconomy. Foreign fishing in a nation’s Exclusive Economic Zone (EEZ) contributes to a y% of IUU fishing \citep{cabral_2018}. Drivers of foreign fishing include a, b and c, but it is unclear how this may change under climate change. We show ENSO events increase foreign fishing by z%. This effect is larger for vessels with less fishing experience and lower for vessels with higher fishing experience. We also find the effect is lower for more adaptive gears such as longliners. This quantitative evidence linking climate and fishing behavior have important implications for climate projections and adaptation of this sector
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 4
+    keep_tex: yes
+    citation_package: natbib
+bibliography: references.bib
+---
+
+---
+
+*Updated on: `r Sys.Date()`*
+
+\clearpage
+
+```{r setup, include = FALSE}
+source(here::here("scripts", "setup.R"))
+
+run_analysis <- T
+
+
+## Dont touch
+
+if(!run_analysis){
+  knitr::opts_chunk$set(echo = FALSE,
+                        message = FALSE,
+                        warning = FALSE,
+                        eval = FALSE,
+                        include = FALSE)
+}
+
+```
+
+# To do list
+
+- Revise methods and explain how SST - nino 3 teleconnection was calculated
+
+\clearpage
+
+# Introduction
+
+# Methods
+
+## GFW data
+
+```{r}
+gridded_ff <- read_csv(file = here("raw_data", "GFW", "gridded_ff_by_gear_country.csv"),
+                       col_types = cols(),
+                       progress = F) %>% 
+  filter(best_label %in% c("drifting_longlines", "purse_seines")) %>% 
+  mutate(date = date(paste(year, month, "01", sep = "/"))) %>% 
+  select(year, month, date, longitude = lon_bin_center, latitude = lat_bin_center, everything())
+```
+
+```{r}
+world_coastline <- sf::st_read(dsn = here("raw_data", "spatial"), layer = "world_coastline", quiet = T)
+```
+
+```{r}
+gridded_ff %>% 
+  filter(hours > 0) %>% 
+  group_by(best_label, is_foreign, latitude, longitude) %>% 
+  summarize(hours = sum(hours, na.rm = T)) %>% 
+  ggplot() +
+  ggtheme_map() +
+  geom_raster(aes(x = longitude, y = latitude, fill = hours)) +
+  scale_fill_viridis_c(trans = "log10") +
+  facet_grid(is_foreign~best_label) +
+  theme_dark() +
+  geom_sf(data = world_coastline, fill = "black") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(title = "FF and non-FF by gear", x = "", y = "", fill = "Fishing hours")
+```
+
+
+## ENSO data
+
+```{r}
+nino3 <- read.csv(here::here("data","all_indices.csv"),
+                        stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall")) %>% 
+  filter(year > 1950) %>% 
+  mutate(date = lubridate::date(date)) %>% 
+  select(year, month = month_n, date, nino3, nino3anom)
+```
+
+```{r}
+plot1 <- nino3 %>%
+  ggplot(aes(x = date, y = nino3anom)) +
+  ggtheme_plot() +
+  geom_rect(aes(xmin = date("2012-01-01"), xmax = date("2018-01-01"), ymin = -Inf, ymax = Inf), fill = "lightgray") +
+  geom_text(x = date("2014-12-01"), y = 3.2, label = "GFW") +
+  geom_line(aes(color = nino3anom)) +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Date", y = "nino3", color = "nino3")
+
+plot2 <- nino3 %>% 
+  filter(year > 2011) %>% 
+  ggplot(aes(x = date, y = nino3anom)) +
+  ggtheme_plot() +
+  geom_line(aes(color = nino3anom)) +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(x = "Date", y = "nino3", color = "nino3")
+
+cowplot::plot_grid(plot1, plot2, ncol = 1, labels = "AUTO")
+```
+
+
+## Empirical specifications
+
+### ENSO and Foreign Fishing
+
+```{r}
+gridded_ff %>% 
+  group_by(date, is_foreign, best_label) %>% 
+  summarize(hours = sum(hours)) %>% 
+  left_join(nino3, by = "date") %>% 
+  ggplot() +
+  ggtheme_plot() +
+  geom_line(aes(x = date, y = hours, group = is_foreign, color = nino3anom)) +
+  scale_color_gradientn(colours = colorRamps::blue2red(20)) +
+  facet_grid(is_foreign~best_label, scales = "free") +
+  labs(x = "Date", y = "hours", color = "nino3")
+```
+
+
+We estimate the effects of ENSO on Foreign Fishing using a difference-in-difference strategy to compare the effects of ENSO on foreign fishing in regions impacted by ENSO to its effects on foreign fishing in regions not impacted by ENSO.
+
+$$log(FF_{ct}) = \alpha + \beta ENSO_t \times \Pi_{c\epsilon T} + \phi_t + \lambda_c + \epsilon_{ct}$$
+
+$FF_{ct}$ represents the foreign fishing variable of interest by country and year. We use an inverse hyperbolic sine[^1] of our foreign fishing variable in my main specification to transform zeroes in the data \citep{burbidge_1988,card_2017}. $\alpha$ is a constant and $\beta$ captures the linear effect of ENSO on countries in effected regions compared to counties in regions uneffected by ENSO. The treatment is ENSO interacted with a dummy, $\Pi_{ct}$, that equals 1 for countries in ENSO-effected regions and 0 for countries in uneffected-ENSO regions. $\phi_t$ are monthly fixed effects and $\lambda_c$ are country fixed effects. Standard errors are clustered at the country level
+
+[^1]: $ln(FF + \sqrt{1 + FF^2} \rightarrow ln(2L)$
+
+
+### Identify treatment regions
+
+First we established a relationship between ENSO and two local environmental variables that drive the geographical presence of fish stocks, sea-surface temperature (SST) and windspeed. We use composite images of average monthly SST value, $SST_t$ , from the NASA Dataset[^2]. We run the following regression model:
+
+$$SST_t = \omega + \phi ENSO_t + \sum_{p = 1}^{N}{\mu_pt^p} + \epsilon_t$$
+
+[^2]: ftp://podaac-ftp.jpl.nasa.gov/
+
+```{r}
+sst_df <- readRDS(here::here("data", "sst_df.rds"))
+```
+
+
+```{r, fig.width = 6, fig.height = 5}
+ggplot() +
+  ggtheme_map() +
+  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
+  geom_raster(data = sst_df, aes(x = longitude, y = latitude, fill = as.factor(tele))) +
+  facet_wrap(~month, ncol = 3) +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  theme(legend.position = "none")
+```
+
+```{r, fig.width = 6, fig.height = 5}
+treatment_regions <- sst_df %>% 
+  group_by(longitude, latitude) %>% 
+  summarize(tele = sum(tele)) %>% 
+  ungroup() %>% 
+  mutate(tele_1 = tele >= 1,
+         tele_2 = tele >= 2,
+         tele_3 = tele >= 3,
+         tele_4 = tele >= 4,
+         tele_5 = tele >= 5,
+         tele_6 = tele >= 6,
+         tele_7 = tele >= 7,
+         tele_8 = tele >= 8,
+         tele_9 = tele >= 9,
+         tele_10 = tele >= 10,
+         tele_11 = tele >= 11,
+         tele_12 = tele >= 12) %>% 
+  select(-tele) %>% 
+  gather(months, tele_binary, -c(longitude, latitude)) %>% 
+  mutate(months = as.numeric(str_extract(string = months, pattern = "\\d+")))
+  
+  
+ggplot(treatment_regions) +
+  ggtheme_map() +
+  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
+  geom_raster(aes(x = longitude, y = latitude, fill = as.factor(tele_binary*1))) +
+  facet_wrap(~months, ncol = 3) +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  theme(legend.position = "none")
+```
+
+where $\omega$ is a constant, $\phi$ captures the linear effect of monthly ENSO and µp captures the effect of a p^th^-order polynomial time trend. Standard errors use the Newey-West adjustment which allows for serial correlation and heteroscedasticity of arbitrary form in the error terms over an optimally chosen window of time \citep{newey_1987,newey_1994}.
+
+SST during this sample period exhibited trending behavior and thus needed to be detrended. To determine the polynomial order of the time trend, $N$, we use the Akaike Information Criteria (AIC) \citep{akaike_1974}, which when minimized captures a model’s overall goodness of fit while penalizing additional terms with limited explanatory power. For both fisheries, we observe that the AIC statistic drops when a time trend of second-order or higher is included in Equation 2. Importantly, we detect a positive/negative relationship between winter ENSO and SST and a positive/negative relationship between winter ENSO and windspeed, shown in Figure X.
+
+
+$$log(FF_t) = \psi + \delta ENSO_t + \sum_{p = 1}^{N}{k_pt^p} + \mu_t$$
+
+$\psi$ is a constant; $\delta$ captures the linear effect of ENSO and $k_p$ represents the effect of a p^th^-order polynomial time trend. Standard errors use the Newey-West adjustment, allowing for arbitrary forms of serial correlation and heteroscedasticity in the error term with a bandwidth of 10 months. As a robustness check, we use different polynomial time trends to remove any long-term trends
+
+```{r}
+treatment_3 <- treatment_regions %>% 
+  filter(months == 3) %>% 
+  select(longitude, latitude, tele_binary) %>% 
+  rasterFromXYZ() %>% 
+  disaggregate(fact = 10) %>% 
+  as.data.frame(xy = T) %>% 
+  magrittr::set_colnames(value = c("longitude", "latitude", "tele_binary")) %>% 
+  as.tibble() %>% 
+  mutate(latitude = round(latitude, digits = 2),
+         longitude = round(longitude, digits = 2))
+  
+model_data <- gridded_ff %>% 
+  filter(is_foreign) %>%
+  left_join(nino3, by = c("year", "month", "date")) %>% 
+  left_join(treatment_3, by = c("longitude", "latitude")) %>% 
+  rename(treated = tele_binary) %>% 
+  mutate(treated = treated * 1,
+         hours2 = log(hours + sqrt(1 + hours ^ 2)))
+```
+
+```{r, results = "asis"}
+model1 <- lm(hours ~ nino3anom * treated, data = model_data)
+model2 <- lm(hours ~ nino3anom * treated + best_label, data = model_data)
+model3 <- lm(hours ~ nino3anom * treated + best_label + month, data = model_data)
+model4 <- lm(hours ~ nino3anom * treated + best_label + month + iso3, data = model_data)
+
+model5 <- lm(hours2 ~ nino3anom * treated, data = model_data)
+model6 <- lm(hours2 ~ nino3anom * treated + best_label, data = model_data)
+model7 <- lm(hours2 ~ nino3anom * treated + best_label + month, data = model_data)
+model8 <- lm(hours2 ~ nino3anom * treated + best_label + month + iso3, data = model_data)
+
+models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
+
+stargazer::stargazer(models,
+                     se = commarobust::makerobustseslist(models),
+                     type = "latex",
+                     omit = c("best", "iso3", "month"),
+                     add.lines = list(c("Gear FE", "No", "Yes", "Yes", "Yes"),
+                                      c("Month FE", "No", "No", "Yes", "Yes"),
+                                      c("Country FE", "No", "No", "No", "Yes")),
+                     omit.stat = c("adj.rsq", "f", "ser"),
+                     header = F,
+                     title = "\\label{tab:ff_reg}Foreign fishing hours and nino3")
+```
+
+```{r, fig.height = 8, fig.width = 6}
+purrr::map_df(models, broom::tidy, .id = "Model") %>%
+  filter(term %in% c("(Intercept)", "nino3anom", "treated", "nino3anom:treated")) %>%
+  mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine")) %>% 
+  ggplot(aes(x = Model, y = estimate, group = Model)) +
+  ggtheme_plot() +
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.1, size = 1, color = "red") +
+  geom_point(size = 2, shape = 21, fill = "steelblue") +
+  facet_wrap(term~class, scales = "free", ncol = 2)
+```
+
+
+\clearpage
+
+# References
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+---
+title: "Untitled"
+author: "Juan Carlos"
+date: "26 de julio de 2018"
+output: pdf_document
+# bibliography: references.bib
+header-includes:
+  - \usepackage{natbib}
+---
+
+Hello \citep{cabral_2018}, also \citet{cabral_2018} bye
+
+
+\bibliography{references}

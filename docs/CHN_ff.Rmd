@@ -57,6 +57,7 @@ month_indices %>%
   summarize(hours = sum(hours),
             nino3anom_max = max(nino3anom)) %>% 
   ungroup() %>% 
+  # filter(hours > 1e4) %>% 
   transform(eez_iso3 = reorder(eez_iso3, total_hours)) %>% 
   ggplot(aes(x = eez_iso3, y = hours, fill = nino3anom_max)) +
   geom_col() +
@@ -67,7 +68,7 @@ month_indices %>%
 
 When is China ff'ing?
 
-```{r}
+```{r, fig.height = 6, fig.width = 4}
 month_indices %>% 
   filter(iso3 == "CHN",
          is_foreign,
@@ -75,14 +76,73 @@ month_indices %>%
   group_by(date, nino3anom, eez_iso3, inferred_label) %>% 
   summarize(hours = sum(hours)) %>% 
   ungroup() %>% 
+  filter(hours > 1e4) %>% 
   ggplot(aes(x = nino3anom, y = hours, group = eez_iso3, color = nino3anom)) +
   geom_point() +
   theme(legend.position = "none") +
-  scale_color_gradientn(colors = colorRamps::matlab.like(20))
-    
+  scale_color_gradientn(colors = colorRamps::matlab.like(20)) +
+  facet_wrap(~inferred_label, scales = "free", ncol = 1)
 ```
 
+```{r, fig.height =8, fig.width = 8}
+month_indices %>% 
+  filter(iso3 == "CHN",
+         is_foreign,
+         fishing) %>% 
+  group_by(date, nino3anom, eez_iso3, inferred_label) %>% 
+  summarize(hours = sum(hours)) %>% 
+  ungroup() %>% 
+  filter(hours > 1e4) %>% 
+  ggplot(aes(x = nino3anom, y = hours, group = eez_iso3, color = nino3anom)) +
+  geom_point() +
+  theme(legend.position = "none") +
+  scale_color_gradientn(colors = colorRamps::matlab.like(20)) +
+  facet_wrap(~eez_iso3, scales = "free", ncol = 4)
+```
 
+```{r, fig.height = 8, fig.width = 8}
+month_indices %>% 
+  filter(iso3 == "CHN") %>%
+  group_by(year) %>% 
+  mutate(total_hours_year = sum(hours)) %>% 
+  ungroup() %>% 
+  group_by(year, is_foreign) %>% 
+  mutate(total_foreign_hours = sum(hours)) %>% 
+  ungroup() %>% 
+  group_by(year, fishing) %>% 
+  mutate(total_fishing_hours = sum(hours)) %>% 
+  ungroup() %>% 
+  filter(is_foreign,
+         fishing) %>% 
+  group_by(year, total_hours_year, total_fishing_hours, total_foreign_hours, eez_iso3) %>% 
+  summarize(hours = sum(hours),
+            nino3anom_max = max(nino3anom)) %>% 
+  ungroup() %>% 
+  mutate(hours_prop_of_total = hours / total_hours_year,
+         hours_prop_of_fishing = hours / total_fishing_hours,
+         hours_prop_of_foreign = hours / total_foreign_hours) %>% 
+  filter(hours_prop_of_foreign > 0.01) %>% 
+  gather(type, hours, -c(year, total_hours_year, total_fishing_hours, total_foreign_hours, eez_iso3, nino3anom_max)) %>% 
+  ggplot(aes(x = eez_iso3, y = hours, fill = nino3anom_max)) +
+  geom_col() +
+  facet_wrap(~type, scales = "free") +
+  scale_fill_gradientn(colors = colorRamps::matlab.like(20)) +
+  coord_flip()
+```
+
+```{r}
+month_indices %>% 
+  filter(iso3 == "CHN") %>% 
+  mutate(country = countrycode::countrycode(sourcevar = eez_iso3,
+                                            origin = "iso3c",
+                                            destinatio = "country.name")) %>%
+  group_by(country, inferred_label) %>% 
+  count() %>% 
+  drop_na() %>% 
+  mutate(n = 1) %>% 
+  spread(inferred_label, n) %>% 
+  knitr::kable()
+```
 
 
 
