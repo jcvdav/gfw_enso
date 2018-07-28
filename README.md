@@ -6,10 +6,22 @@
 gfw_enso:
 ├───data
 ├───docs
+│   └───Oremus_Villasenor-Derbez_files
+│       └───figure-latex
+├───figures
 ├───raw_data
 │   ├───GFW
-│   └───indices
-└───scripts
+│   ├───indices
+│   └───spatial
+│       └───temp
+├───scripts
+└───slides
+    ├───css
+    │   └───img
+    ├───libs
+    │   └───remark-css
+    └───meeting_with_chris_files
+        └───figure-html
 ```
 ## Data sources
 
