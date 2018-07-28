@@ -4,6 +4,8 @@ header-includes:
   - \doublespacing
   - \usepackage{lineno}
   - \linenumbers
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
 title: "ENSO increases foreign fishing"
 author:
   - Kimberly Oremus^1^
@@ -21,10 +23,6 @@ bibliography: references.bib
 ---
 
 ---
-
-*Updated on: `r Sys.Date()`*
-
-\clearpage
 
 ```{r setup, include = FALSE}
 source(here::here("scripts", "setup.R"))
@@ -44,9 +42,14 @@ if(!run_analysis){
 
 ```
 
+*Updated on: `r Sys.Date()`*
+
 # To do list
 
 - Revise methods and explain how SST - nino 3 teleconnection was calculated
+- Describe each dataset
+- Build a brief introduction
+- Update the specifications
 
 \clearpage
 
@@ -54,7 +57,9 @@ if(!run_analysis){
 
 # Methods
 
-## GFW data
+## Data
+
+### GFW data
 
 ```{r}
 gridded_ff <- read_csv(file = here("raw_data", "GFW", "gridded_ff_by_gear_country.csv"),
@@ -69,7 +74,7 @@ gridded_ff <- read_csv(file = here("raw_data", "GFW", "gridded_ff_by_gear_countr
 world_coastline <- sf::st_read(dsn = here("raw_data", "spatial"), layer = "world_coastline", quiet = T)
 ```
 
-```{r}
+```{r, fig.cap = "Fishing effort (hours) by gear and foreign fishing"}
 gridded_ff %>% 
   filter(hours > 0) %>% 
   group_by(best_label, is_foreign, latitude, longitude) %>% 
@@ -87,7 +92,7 @@ gridded_ff %>%
 ```
 
 
-## ENSO data
+### ENSO data
 
 ```{r}
 nino3 <- read.csv(here::here("data","all_indices.csv"),
@@ -101,7 +106,7 @@ nino3 <- read.csv(here::here("data","all_indices.csv"),
   select(year, month = month_n, date, nino3, nino3anom)
 ```
 
-```{r}
+```{r, fig.cap = "Timeseries of nino3 index (detrended) for A) The entire length and B) timespan matching GFW data"}
 plot1 <- nino3 %>%
   ggplot(aes(x = date, y = nino3anom)) +
   ggtheme_plot() +
@@ -124,12 +129,31 @@ plot2 <- nino3 %>%
 cowplot::plot_grid(plot1, plot2, ncol = 1, labels = "AUTO")
 ```
 
+### SST Data
+
+```{r, fig.width = 6, fig.height = 5, fig.cap = "Mean monthly SST"}
+sst_df_whole <- readRDS(here::here("data", "sst_df_whole.rds"))
+
+sst_df_whole %>% 
+  mutate(date = lubridate::date(paste(date, 01, sep = "-"))) %>% 
+  group_by(month, longitude, latitude) %>% 
+  summarize(sst = mean(sst, na.rm = T)) %>%
+  ggplot() +
+  ggtheme_map() +
+  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
+  geom_raster(aes(x = longitude, y = latitude, fill = sst)) +
+  facet_wrap(~month, ncol = 3) +
+  scale_fill_gradientn(colours = colorRamps::matlab.like(50))
+
+rm(sst_df_whole)
+```
+
 
 ## Empirical specifications
 
 ### ENSO and Foreign Fishing
 
-```{r}
+```{r, fig.cap = "Trends in fishing hours by gear and foreign"}
 gridded_ff %>% 
   group_by(date, is_foreign, best_label) %>% 
   summarize(hours = sum(hours)) %>% 
@@ -161,11 +185,11 @@ $$SST_t = \omega + \phi ENSO_t + \sum_{p = 1}^{N}{\mu_pt^p} + \epsilon_t$$
 [^2]: ftp://podaac-ftp.jpl.nasa.gov/
 
 ```{r}
-sst_df <- readRDS(here::here("data", "sst_df.rds"))
+sst_df <- readRDS(here::here("data", "sst_nino3_df.rds"))
 ```
 
 
-```{r, fig.width = 6, fig.height = 5}
+```{r, fig.width = 6, fig.height = 5, fig.cap = "Monthly correlations between SST and nino3 index. Numbers above each pannel indicate the month (1 = Jan, 12 = Dec). Red zones indicate the pearson's correlation coefficient was > 0 and p < 0.1."}
 ggplot() +
   ggtheme_map() +
   geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
@@ -175,7 +199,7 @@ ggplot() +
   theme(legend.position = "none")
 ```
 
-```{r, fig.width = 6, fig.height = 5}
+```{r, fig.width = 6, fig.height = 5, fig.cap = "ENSO teleconnection depending on number of months. Number above figures indicate the minimum number of months for which a particular parcel was correlated to nino3 (red). For example, the panel 6 indicates that all red regions where SST showed a positive ( r > 0) and significant (p < 0.1) correlation with nino3 index for at least 6 months."}
 treatment_regions <- sst_df %>% 
   group_by(longitude, latitude) %>% 
   summarize(tele = sum(tele)) %>% 
@@ -213,7 +237,13 @@ SST during this sample period exhibited trending behavior and thus needed to be 
 
 $$log(FF_t) = \psi + \delta ENSO_t + \sum_{p = 1}^{N}{k_pt^p} + \mu_t$$
 
-$\psi$ is a constant; $\delta$ captures the linear effect of ENSO and $k_p$ represents the effect of a p^th^-order polynomial time trend. Standard errors use the Newey-West adjustment, allowing for arbitrary forms of serial correlation and heteroscedasticity in the error term with a bandwidth of 10 months. As a robustness check, we use different polynomial time trends to remove any long-term trends
+$\psi$ is a constant; $\delta$ captures the linear effect of ENSO and $k_p$ represents the effect of a p^th^-order polynomial time trend. Standard errors use the Newey-West adjustment, allowing for arbitrary forms of serial correlation and heteroscedasticity in the error term with a bandwidth of 10 months. As a robustness check, we use different polynomial time trends to remove any long-term trends.
+
+---
+
+# Results
+
+So far these are only for eq 1.
 
 ```{r}
 treatment_3 <- treatment_regions %>% 
@@ -233,7 +263,8 @@ model_data <- gridded_ff %>%
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
   mutate(treated = treated * 1,
-         hours2 = log(hours + sqrt(1 + hours ^ 2)))
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% 
+  mutate(month = as.factor(month))
 ```
 
 ```{r, results = "asis"}
@@ -261,7 +292,7 @@ stargazer::stargazer(models,
                      title = "\\label{tab:ff_reg}Foreign fishing hours and nino3")
 ```
 
-```{r, fig.height = 8, fig.width = 6}
+```{r, fig.height = 8, fig.width = 6, fig.cap = "Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8)."}
 purrr::map_df(models, broom::tidy, .id = "Model") %>%
   filter(term %in% c("(Intercept)", "nino3anom", "treated", "nino3anom:treated")) %>%
   mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine")) %>% 

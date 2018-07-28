@@ -90,6 +90,8 @@ University of California, Santa Barbara}
 \doublespacing
 \usepackage{lineno}
 \linenumbers
+\usepackage{float}
+\floatplacement{figure}{H}
 
 \begin{document}
 \maketitle
@@ -113,9 +115,7 @@ adaptation of this sector
 }
 \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-\emph{Updated on: 2018-07-26}
-
-\clearpage
+\emph{Updated on: 2018-07-27}
 
 \section{To do list}\label{to-do-list}
 
@@ -124,6 +124,12 @@ adaptation of this sector
 \item
   Revise methods and explain how SST - nino 3 teleconnection was
   calculated
+\item
+  Describe each dataset
+\item
+  Build a brief introduction
+\item
+  Update the specifications
 \end{itemize}
 
 \clearpage
@@ -132,19 +138,42 @@ adaptation of this sector
 
 \section{Methods}\label{methods}
 
-\subsection{GFW data}\label{gfw-data}
+\subsection{Data}\label{data}
 
+\subsubsection{GFW data}\label{gfw-data}
+
+\begin{figure}
+\centering
 \includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-3-1.pdf}
+\caption{Fishing effort (hours) by gear and foreign fishing}
+\end{figure}
 
-\subsection{ENSO data}\label{enso-data}
+\subsubsection{ENSO data}\label{enso-data}
 
+\begin{figure}
+\centering
 \includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-5-1.pdf}
+\caption{Timeseries of nino3 index (detrended) for A) The entire length
+and B) timespan matching GFW data}
+\end{figure}
+
+\subsubsection{SST Data}\label{sst-data}
+
+\begin{figure}
+\centering
+\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-6-1.pdf}
+\caption{Mean monthly SST}
+\end{figure}
 
 \subsection{Empirical specifications}\label{empirical-specifications}
 
 \subsubsection{ENSO and Foreign Fishing}\label{enso-and-foreign-fishing}
 
-\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-6-1.pdf}
+\begin{figure}
+\centering
+\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-7-1.pdf}
+\caption{Trends in fishing hours by gear and foreign}
+\end{figure}
 
 We estimate the effects of ENSO on Foreign Fishing using a
 difference-in-difference strategy to compare the effects of ENSO on
@@ -177,9 +206,25 @@ following regression model:
 
 \[SST_t = \omega + \phi ENSO_t + \sum_{p = 1}^{N}{\mu_pt^p} + \epsilon_t\]
 
-\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-8-1.pdf}
-
+\begin{figure}
+\centering
 \includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-9-1.pdf}
+\caption{Monthly correlations between SST and nino3 index. Numbers above
+each pannel indicate the month (1 = Jan, 12 = Dec). Red zones indicate
+the pearson's correlation coefficient was \textgreater{} 0 and p
+\textless{} 0.1.}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-10-1.pdf}
+\caption{ENSO teleconnection depending on number of months. Number above
+figures indicate the minimum number of months for which a particular
+parcel was correlated to nino3 (red). For example, the panel 6 indicates
+that all red regions where SST showed a positive ( r \textgreater{} 0)
+and significant (p \textless{} 0.1) correlation with nino3 index for at
+least 6 months.}
+\end{figure}
 
 where \(\omega\) is a constant, \(\phi\) captures the linear effect of
 monthly ENSO and µp captures the effect of a p\textsuperscript{th}-order
@@ -207,44 +252,57 @@ polynomial time trend. Standard errors use the Newey-West adjustment,
 allowing for arbitrary forms of serial correlation and
 heteroscedasticity in the error term with a bandwidth of 10 months. As a
 robustness check, we use different polynomial time trends to remove any
-long-term trends
+long-term trends.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{Results}\label{results}
+
+So far these are only for eq 1.
 
 \begin{table}[!htbp] \centering 
-  \caption{\label{tab:kir_vessels}Foreign fishing hours and nino3} 
+  \caption{\label{tab:ff_reg}Foreign fishing hours and nino3} 
   \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lcccc} 
+\begin{tabular}{@{\extracolsep{5pt}}lcccccccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
- & \multicolumn{4}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-5} 
-\\[-1.8ex] & \multicolumn{4}{c}{hours} \\ 
-\\[-1.8ex] & (1) & (2) & (3) & (4)\\ 
+ & \multicolumn{8}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-9} 
+\\[-1.8ex] & \multicolumn{4}{c}{hours} & \multicolumn{4}{c}{hours2} \\ 
+\\[-1.8ex] & (1) & (2) & (3) & (4) & (5) & (6) & (7) & (8)\\ 
 \hline \\[-1.8ex] 
- nino3anom & 0.718$^{***}$ & 0.748$^{***}$ & 0.753$^{***}$ & 0.438$^{***}$ \\ 
-  & (0.075) & (0.076) & (0.076) & (0.077) \\ 
-  & & & & \\ 
- treated & $-$0.087 & 0.040 & 0.046 & $-$1.097$^{***}$ \\ 
-  & (0.113) & (0.107) & (0.107) & (0.116) \\ 
-  & & & & \\ 
- nino3anom:treated & 0.333$^{***}$ & 0.216$^{**}$ & 0.212$^{**}$ & 0.661$^{***}$ \\ 
-  & (0.092) & (0.093) & (0.093) & (0.095) \\ 
-  & & & & \\ 
- Constant & 19.894$^{***}$ & 19.502$^{***}$ & 19.126$^{***}$ & 19.730$^{***}$ \\ 
-  & (0.097) & (0.082) & (0.133) & (1.016) \\ 
-  & & & & \\ 
+ nino3anom & 0.718$^{***}$ & 0.748$^{***}$ & 0.550$^{***}$ & 0.315 & 0.047$^{***}$ & 0.047$^{***}$ & 0.036$^{***}$ & 0.022 \\ 
+  & (0.075) & (0.076) & (0.076) &  & (0.002) & (0.002) & (0.002) &  \\ 
+  & & & & & & & & \\ 
+ treated & $-$0.087 & 0.040 & 0.173 & $-$1.046 & 0.097$^{***}$ & 0.097$^{***}$ & 0.105$^{***}$ & $-$0.003 \\ 
+  & (0.113) & (0.107) & (0.109) &  & (0.004) & (0.004) & (0.004) &  \\ 
+  & & & & & & & & \\ 
+ nino3anom:treated & 0.333$^{***}$ & 0.216$^{**}$ & 0.238$^{**}$ & 0.701 & 0.010$^{***}$ & 0.010$^{***}$ & 0.012$^{***}$ & 0.056 \\ 
+  & (0.092) & (0.093) & (0.093) &  & (0.003) & (0.003) & (0.003) &  \\ 
+  & & & & & & & & \\ 
+ Constant & 19.894$^{***}$ & 19.502$^{***}$ & 21.480$^{***}$ & 21.383 & 3.030$^{***}$ & 3.030$^{***}$ & 3.181$^{***}$ & 3.114 \\ 
+  & (0.097) & (0.082) & (0.180) &  & (0.003) & (0.003) & (0.007) &  \\ 
+  & & & & & & & & \\ 
 \hline \\[-1.8ex] 
-Gear FE & No & Yes & Yes & Yes \\ 
-Month FE & No & No & Yes & Yes \\ 
-Country FE & No & No & No & Yes \\ 
-Observations & 418,458 & 418,458 & 418,458 & 418,458 \\ 
-R$^{2}$ & 0.001 & 0.002 & 0.002 & 0.018 \\ 
+Gear FE & No & Yes & Yes & Yes &  &  &  &  \\ 
+Month FE & No & No & Yes & Yes &  &  &  &  \\ 
+Country FE & No & No & No & Yes &  &  &  &  \\ 
+Observations & 418,458 & 418,458 & 418,458 & 418,458 & 418,458 & 418,458 & 418,458 & 418,458 \\ 
+R$^{2}$ & 0.001 & 0.002 & 0.004 & 0.019 & 0.005 & 0.005 & 0.010 & 0.053 \\ 
 \hline 
 \hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{4}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
+\textit{Note:}  & \multicolumn{8}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
 \end{table}
 
-\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-12-1.pdf}
+\begin{figure}
+\centering
+\includegraphics{Oremus_Villasenor-Derbez_files/figure-latex/unnamed-chunk-13-1.pdf}
+\caption{Coefficient estimates for the models ran above. Graphs on the
+left show estimates after the hyperbolic sine transformation of hours.
+Right side show no transformation of hours. Model numbers (x - axis)
+correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).}
+\end{figure}
 
 \clearpage
 

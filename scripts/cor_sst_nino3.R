@@ -46,7 +46,6 @@ gc()
 layers <- paste(rasters$year, rasters$month, sep = "-")
 
 # Convert matrix of SST into a tibble with columns year, month, sst, nino3.
-# Then group by pixel and calculate the correlation between SST and nino 3 for every pixel.
 
 sst_df <- coordinates(r) %>% 
   cbind(values(r)) %>% 
@@ -66,7 +65,9 @@ sst_df %<>%
   drop_na() %>% 
   left_join(nino3test, by = c("year", "month"))
 
-saveRDS(object = sst_df, file = here("data", "sst_df_whole"))
+saveRDS(object = sst_df, file = here("data", "sst_df_whole.rds"))
+
+# Then group by pixel and calculate the correlation between SST and nino 3 for every pixel.
 
 sst_df %<>%
   group_by(longitude, latitude, month) %>%
@@ -81,3 +82,5 @@ sst_df %<>%
   mutate(tele = ifelse((p < 0.1 & r > 0), 1, 0))
 
 write.csv(x = sst_df, file = here("data", "sst_nino3_df.csv"), row.names = F)
+
+saveRDS(object = sst_df, file = here("data", "sst_nino3_df.rds"))
