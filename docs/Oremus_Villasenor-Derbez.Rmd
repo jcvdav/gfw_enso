@@ -71,7 +71,7 @@ gridded_ff <- read_csv(file = here("raw_data", "GFW", "gridded_ff_by_gear_countr
 ```
 
 ```{r}
-world_coastline <- sf::st_read(dsn = here("raw_data", "spatial"), layer = "world_coastline", quiet = T)
+world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
 ```
 
 ```{r, fig.cap = "Fishing effort (hours) by gear and foreign fishing"}
@@ -289,7 +289,8 @@ stargazer::stargazer(models,
                                       c("Country FE", "No", "No", "No", "Yes")),
                      omit.stat = c("adj.rsq", "f", "ser"),
                      header = F,
-                     title = "\\label{tab:ff_reg}Foreign fishing hours and nino3")
+                     title = "\\label{tab:ff_reg}Foreign fishing hours and nino3",
+                     out = "DID.tex", font.size = "small")
 ```
 
 ```{r, fig.height = 8, fig.width = 6, fig.cap = "Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8)."}
