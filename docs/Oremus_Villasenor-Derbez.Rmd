@@ -62,10 +62,8 @@ if(!run_analysis){
 ### GFW data
 
 ```{r}
-gridded_ff <- read_csv(file = here("raw_data", "GFW", "gridded_ff_by_gear_country.csv"),
-                       col_types = cols(),
-                       progress = F) %>% 
-  filter(best_label %in% c("drifting_longlines", "purse_seines")) %>% 
+gridded_ff <- readRDS(file = here::here("raw_data", "gridded_ff_by_gear_country.rds")) %>% 
+  filter(best_label %in% c("drifting_longlines", "tuna_purse_seines")) %>% 
   mutate(date = date(paste(year, month, "01", sep = "/"))) %>% 
   select(year, month, date, longitude = lon_bin_center, latitude = lat_bin_center, everything())
 ```
@@ -284,14 +282,16 @@ stargazer::stargazer(models,
                      se = commarobust::makerobustseslist(models),
                      type = "latex",
                      omit = c("best", "iso3", "month"),
-                     add.lines = list(c("Gear FE", "No", "Yes", "Yes", "Yes"),
-                                      c("Month FE", "No", "No", "Yes", "Yes"),
-                                      c("Country FE", "No", "No", "No", "Yes")),
+                     add.lines = list(c("Gear FE", "No", "Yes", "Yes", "Yes", "No", "Yes", "Yes", "Yes"),
+                                      c("Month FE", "No", "No", "Yes", "Yes", "No", "No", "Yes", "Yes"),
+                                      c("Country FE", "No", "No", "No", "Yes", "No", "No", "No", "Yes")),
                      omit.stat = c("adj.rsq", "f", "ser"),
                      header = F,
                      title = "\\label{tab:ff_reg}Foreign fishing hours and nino3",
                      out = "DID.tex", font.size = "small")
 ```
+
+
 
 ```{r, fig.height = 8, fig.width = 6, fig.cap = "Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8)."}
 purrr::map_df(models, broom::tidy, .id = "Model") %>%
