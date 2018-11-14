@@ -10,7 +10,8 @@ BQc <- bigrquery::dbConnect(drv = bigrquery::bigquery(),
 
 DBI::dbListTables(BQc)
 
-ff <- dplyr::tbl(BQc, "gridded_ff_by_gear_country") %>% 
-  collect()
+gff <- dplyr::tbl(BQc, "gridded_ff_by_gear_country") %>% 
+  collect() %>% 
+  mutate(is_foreign = is_foreign == "TRUE")
 
-saveRDS(ff, file = here::here("raw_data", "gridded_ff_by_gear_country.rds"))
+saveRDS(gff, file = here::here("raw_data", "gridded_ff_by_gear_country.rds"))
