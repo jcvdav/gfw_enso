@@ -1,5 +1,6 @@
 # Load packages
 suppressPackageStartupMessages({
+  library(startR)
   library(here)
   library(raster)
   library(magrittr)
@@ -82,6 +83,9 @@ sst_df %<>%
 # Export RDS object
 saveRDS(object = sst_df, file = here("data", "sst_nino3_df.rds"))
 
+# Read the coastline
+world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
+
 # Monthly correlations between SST and nino3 index. Numbers above each pannel indicate the month (1 = Jan, 12 = Dec). Red zones indicate the pearson's correlation coefficient was > 0 and p < 0.1.
 p <- ggplot() +
   ggtheme_map() +
@@ -92,4 +96,4 @@ p <- ggplot() +
   theme(legend.position = "none")
 
 # Export plot
-ggsave(plot = p, filename = here("img", "cor_sst_nino3.pdf"), fig.width = 6, fig.height = 5)
+ggsave(plot = p, filename = here("img", "cor_sst_nino3.pdf"), width = 6, height = 5)
