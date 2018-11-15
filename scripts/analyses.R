@@ -1,9 +1,8 @@
 # Load packages
-suppressPackageStartupMessages({
-  library(startR)
-  library(here)
-  library(tidyverse)
-})
+library(startR)
+library(raster)
+library(here)
+library(tidyverse)
 
 # Read the coastline
 world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
@@ -55,6 +54,17 @@ treatment_3 <- treatment_regions %>%
 
 # Read the gridded effort data (see scripts/download_gridded_ff_by_gear_country)
 gridded_ff <- readRDS(file = here("raw_data", "gridded_ff_by_gear_country.rds"))
+
+# nino3 index
+nino3 <- read.csv(here::here("data","all_indices.csv"),
+                  stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall")) %>% 
+  filter(year > 1950) %>% 
+  mutate(date = lubridate::date(date)) %>% 
+  select(year, month = month_n, date, nino3, nino3anom)
 
 model_data <- gridded_ff %>% 
   filter(is_foreign) %>%
