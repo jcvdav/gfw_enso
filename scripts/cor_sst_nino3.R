@@ -1,5 +1,4 @@
 # Load packages
-
 suppressPackageStartupMessages({
   library(here)
   library(raster)
@@ -68,7 +67,6 @@ sst_df %<>%
 saveRDS(object = sst_df, file = here("data", "sst_df_whole.rds"))
 
 # Then group by pixel and calculate the correlation between SST and nino 3 for every pixel.
-
 sst_df %<>%
   group_by(longitude, latitude, month) %>%
   mutate(n = n()) %>%
@@ -81,6 +79,17 @@ sst_df %<>%
   ungroup() %>%  
   mutate(tele = ifelse((p < 0.1 & r > 0), 1, 0))
 
-write.csv(x = sst_df, file = here("data", "sst_nino3_df.csv"), row.names = F)
-
+# Export RDS object
 saveRDS(object = sst_df, file = here("data", "sst_nino3_df.rds"))
+
+# Monthly correlations between SST and nino3 index. Numbers above each pannel indicate the month (1 = Jan, 12 = Dec). Red zones indicate the pearson's correlation coefficient was > 0 and p < 0.1.
+p <- ggplot() +
+  ggtheme_map() +
+  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
+  geom_raster(data = sst_df, aes(x = longitude, y = latitude, fill = as.factor(tele))) +
+  facet_wrap(~month, ncol = 3) +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  theme(legend.position = "none")
+
+# Export plot
+ggsave(plot = p, filename = here("img", "cor_sst_nino3.pdf"), fig.width = 6, fig.height = 5)

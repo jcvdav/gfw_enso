@@ -1,4 +1,4 @@
--- !Create girdded effort data
+-- !Last run on 15/11/2018 to create girdded effort data
 
 SELECT
 year, lat_bin_center, lon_bin_center, month, iso3, eez_iso3, best_label, is_foreign, SUM(hours) as hours

@@ -1,4 +1,4 @@
--- !Last run on 14/11/2018 to select fishing and non-fishing hours by vessel
+-- !Last run on 15/11/2018 to select fishing and non-fishing hours by vessel
 
 SELECT
   EXTRACT(YEAR FROM timestamp) AS year,
