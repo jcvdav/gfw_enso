@@ -1,0 +1,103 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\providecommand{\bibinfo}[2]{#2}
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem{Agnew:2009}
+\bibinfo{author}{Agnew, D.~J.} \emph{et~al.}
+\newblock \bibinfo{title}{Estimating the worldwide extent of illegal fishing}.
+\newblock \emph{\bibinfo{journal}{PLoS One}} \textbf{\bibinfo{volume}{4}},
+  \bibinfo{pages}{e4570} (\bibinfo{year}{2009}).
+
+\bibitem{Cabral:2018}
+\bibinfo{author}{Cabral, R.~B.} \emph{et~al.}
+\newblock \bibinfo{title}{Rapid and lasting gains from solving illegal
+  fishing}.
+\newblock \emph{\bibinfo{journal}{Nat Ecol Evol}} \textbf{\bibinfo{volume}{2}},
+  \bibinfo{pages}{650--658} (\bibinfo{year}{2018}).
+
+\bibitem{SOFIA:2018}
+\bibinfo{author}{FAO}.
+\newblock \bibinfo{title}{{The State of World Fisheries and Aquaculture}}
+  (\bibinfo{year}{2018}).
+
+\bibitem{Sumaila:2011}
+\bibinfo{author}{Rashid~Sumaila, U.}, \bibinfo{author}{Cheung, W. W.~L.},
+  \bibinfo{author}{Lam, V. W.~Y.}, \bibinfo{author}{Pauly, D.} \&
+  \bibinfo{author}{Herrick, S.}
+\newblock \bibinfo{title}{Climate change impacts on the biophysics and
+  economics of world fisheries}.
+\newblock \emph{\bibinfo{journal}{Nat. Clim. Chang.}}
+  \textbf{\bibinfo{volume}{1}}, \bibinfo{pages}{449--456}
+  (\bibinfo{year}{2011}).
+
+\bibitem{Lam:2016}
+\bibinfo{author}{Lam, V. W.~Y.}, \bibinfo{author}{Cheung, W. W.~L.},
+  \bibinfo{author}{Reygondeau, G.} \& \bibinfo{author}{Sumaila, U.~R.}
+\newblock \bibinfo{title}{Projected change in global fisheries revenues under
+  climate change}.
+\newblock \emph{\bibinfo{journal}{Sci. Rep.}} \textbf{\bibinfo{volume}{6}},
+  \bibinfo{pages}{32607} (\bibinfo{year}{2016}).
+
+\bibitem{Pinsky:2018}
+\bibinfo{author}{Pinsky, M.~L.} \emph{et~al.}
+\newblock \bibinfo{title}{Preparing ocean governance for species on the move}.
+\newblock \emph{\bibinfo{journal}{Science}} \textbf{\bibinfo{volume}{360}},
+  \bibinfo{pages}{1189--1191} (\bibinfo{year}{2018}).
+
+\bibitem{Kroodsma:2018}
+\bibinfo{author}{Kroodsma, D.~A.} \emph{et~al.}
+\newblock \bibinfo{title}{Tracking the global footprint of fisheries}.
+\newblock \emph{\bibinfo{journal}{Science}} \textbf{\bibinfo{volume}{359}},
+  \bibinfo{pages}{904--908} (\bibinfo{year}{2018}).
+
+\bibitem{McDermott:2018}
+\bibinfo{author}{McDermott, G.~R.}, \bibinfo{author}{Meng, K.~C.},
+  \bibinfo{author}{McDonald, G.~G.} \& \bibinfo{author}{Costello, C.~J.}
+\newblock \bibinfo{title}{The blue paradox: Preemptive overfishing in marine
+  reserves}.
+\newblock \emph{\bibinfo{journal}{Proc. Natl. Acad. Sci. U. S. A.}}
+  (\bibinfo{year}{2018}).
+
+\bibitem{Burbidge:1988}
+\bibinfo{author}{Burbidge, J.~B.}, \bibinfo{author}{Magee, L.} \&
+  \bibinfo{author}{Robb, A.~L.}
+\newblock \bibinfo{title}{Alternative transformations to handle extreme values
+  of the dependent variable}.
+\newblock \emph{\bibinfo{journal}{J. Am. Stat. Assoc.}}
+  \textbf{\bibinfo{volume}{83}}, \bibinfo{pages}{123--127}
+  (\bibinfo{year}{1988}).
+
+\bibitem{Card:2017}
+\bibinfo{author}{Card, D.} \& \bibinfo{author}{DellaVigna, S.}
+\newblock \bibinfo{title}{What do editors maximize? evidence from four leading
+  economics journals}.
+\newblock \bibinfo{type}{Working Paper} \bibinfo{number}{23282},
+  \bibinfo{institution}{National Bureau of Economic Research}
+  (\bibinfo{year}{2017}).
+
+\bibitem{Newey:1987}
+\bibinfo{author}{Newey, W.~K.} \& \bibinfo{author}{West, K.~D.}
+\newblock \bibinfo{title}{A simple, positive semi-definite, heteroskedasticity
+  and autocorrelation consistent covariance matrix}.
+\newblock \emph{\bibinfo{journal}{Econometrica}} \textbf{\bibinfo{volume}{55}},
+  \bibinfo{pages}{703--708} (\bibinfo{year}{1987}).
+
+\bibitem{Newey:1994}
+\bibinfo{author}{Newey, W.~K.} \& \bibinfo{author}{West, K.~D.}
+\newblock \bibinfo{title}{Automatic lag selection in covariance matrix
+  estimation}.
+\newblock \emph{\bibinfo{journal}{The Review of Economic Studies}}
+  \textbf{\bibinfo{volume}{61}}, \bibinfo{pages}{pp. 631--653}
+  (\bibinfo{year}{1994}).
+
+\bibitem{Akaike:1974}
+\bibinfo{author}{Akaike, H.}
+\newblock \bibinfo{title}{A new look at the statistical model identification}.
+\newblock \emph{\bibinfo{journal}{Automatic Control, IEEE Transactions on}}
+  \textbf{\bibinfo{volume}{19}}, \bibinfo{pages}{716--723}
+  (\bibinfo{year}{1974}).
+
+\end{thebibliography}
