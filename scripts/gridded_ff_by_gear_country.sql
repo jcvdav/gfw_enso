@@ -18,14 +18,16 @@ FROM(
   FROM
   `world-fishing-827.gfw_research.nn` as A
   INNER JOIN (
-    SELECT mmsi,
+    SELECT
+    mmsi,
+    year,
     mmsi_iso3,
     inferred_label_allyears,
     inferred_label
     FROM `world-fishing-827.gfw_research.vessel_info_20181002`
     WHERE
     mmsi_iso3 IN ("CHN", "TWN", "PRK", "JPN", "KOR", "NZL", "AUS", "USA", "ESP", "GBR", "PRT", "MEX", "CHL", "PER"))  as B
-    ON A.mmsi = B.mmsi
+    ON (A.mmsi = B.mmsi AND year = B.year)
     GROUP BY year, lat_bin_center, lon_bin_center, month, mmsi, iso3, eez_iso3, best_label, is_foreign, fishing)
   WHERE fishing = "TRUE"
   GROUP BY year, lat_bin_center, lon_bin_center, month, iso3, eez_iso3, best_label, is_foreign

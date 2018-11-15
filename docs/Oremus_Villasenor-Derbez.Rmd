@@ -63,8 +63,9 @@ if(!run_analysis){
 
 ```{r}
 gridded_ff <- readRDS(file = here::here("raw_data", "gridded_ff_by_gear_country.rds")) %>% 
-  filter(best_label %in% c("drifting_longlines", "tuna_purse_seines")) %>% 
-  mutate(date = date(paste(year, month, "01", sep = "/"))) %>% 
+  filter(best_label %in% c("drifting_longlines", "set_longlines", "drifting_longlines|set_longlines", "tuna_purse_seines", "other_purse_seines", "purse_seines")) %>% 
+  mutate(date = date(paste(year, month, "01", sep = "/")),
+         best_label = ifelse(str_detect(best_label, "purse"), "purse_seines", best_label)) %>% 
   select(year, month, date, longitude = lon_bin_center, latitude = lat_bin_center, everything())
 ```
 
@@ -290,8 +291,6 @@ stargazer::stargazer(models,
                      title = "\\label{tab:ff_reg}Foreign fishing hours and nino3",
                      out = "DID.tex", font.size = "small")
 ```
-
-
 
 ```{r, fig.height = 8, fig.width = 6, fig.cap = "Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8)."}
 purrr::map_df(models, broom::tidy, .id = "Model") %>%

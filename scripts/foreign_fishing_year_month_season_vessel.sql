@@ -20,14 +20,16 @@ SELECT
 FROM
   `world-fishing-827.gfw_research.nn7` as A
 INNER JOIN (
-  SELECT mmsi,
-         mmsi_iso3,
-         best_label,
-         inferred_label
+  SELECT
+    mmsi,
+    year,
+    mmsi_iso3,
+    best_label,
+    inferred_label
   FROM `world-fishing-827.gfw_research.vessel_info_20181002`
   WHERE
        MMSI_iso3 IN ("CHN", "TWN", "PRK", "JPN", "KOR", "NZL", "AUS", "USA", "ESP", "GBR", "PRT", "MEX", "CHL", "PER"))  as B
-  ON A.mmsi = B.mmsi
+  ON (A.mmsi = B.mmsi AND year = B.year)
 WHERE
       A.seg_id IN (SELECT seg_id
                    FROM `world-fishing-827.gfw_research.good_segments`)
