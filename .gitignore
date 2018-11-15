@@ -6,3 +6,4 @@
 GFW/
 .httr-oauth
 raw_data/spatial/temp
+*.nc
