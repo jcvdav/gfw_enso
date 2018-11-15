@@ -1,7 +1,15 @@
+# Load packages
+suppressPackageStartupMessages({
+  library(startR)
+  library(here)
+  library(tidyverse)
+})
+
+# Read the coastline
+world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
+
 # Analyses here
 sst_df <- readRDS(here::here("data", "sst_nino3_df.rds"))
-
-# ggsave here
 
 treatment_regions <- sst_df %>% 
   group_by(longitude, latitude) %>% 
@@ -32,9 +40,7 @@ p <- ggplot(treatment_regions) +
   scale_fill_brewer(palette = "Set1", direction = -1) +
   theme(legend.position = "none")
 
-# ggsave here
-
-# Results
+ggsave(plot = p, filename = here("img", "cor_sst_nino3_var.pdf"), width = 6, height = 5)
 
 treatment_3 <- treatment_regions %>% 
   filter(months == 3) %>% 
@@ -47,17 +53,20 @@ treatment_3 <- treatment_regions %>%
   mutate(latitude = round(latitude, digits = 2),
          longitude = round(longitude, digits = 2))
 
+# Read the gridded effort data (see scripts/download_gridded_ff_by_gear_country)
+gridded_ff <- readRDS(file = here("raw_data", "gridded_ff_by_gear_country.rds"))
+
 model_data <- gridded_ff %>% 
   filter(is_foreign) %>%
   left_join(nino3, by = c("year", "month", "date")) %>% 
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
   mutate(treated = treated * 1,
-         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% 
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
   mutate(month = as.factor(month))
 
 
-# 
+# Run the regressions
 model1 <- lm(hours ~ nino3anom * treated, data = model_data)
 model2 <- lm(hours ~ nino3anom * treated + best_label, data = model_data)
 model3 <- lm(hours ~ nino3anom * treated + best_label + month, data = model_data)
@@ -70,6 +79,7 @@ model8 <- lm(hours2 ~ nino3anom * treated + best_label + month + iso3, data = mo
 
 models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
 
+# Stargazer table
 stargazer::stargazer(models,
                      se = commarobust::makerobustseslist(models),
                      type = "latex",
@@ -80,10 +90,10 @@ stargazer::stargazer(models,
                      omit.stat = c("adj.rsq", "f", "ser"),
                      header = F,
                      title = "\\label{tab:ff_reg}Foreign fishing hours and nino3",
-                     out = here("writing", "DID.tex"), font.size = "small")
+                     out = here("writing", "DID.tex"),
+                     font.size = "small")
 
 # Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).
-
 p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
   filter(term %in% c("(Intercept)", "nino3anom", "treated", "nino3anom:treated")) %>%
   mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine")) %>% 
@@ -92,3 +102,5 @@ p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.1, size = 1, color = "red") +
   geom_point(size = 2, shape = 21, fill = "steelblue") +
   facet_wrap(term~class, scales = "free", ncol = 2)
+
+ggsave(plot = p, filename = here("img", "coef_estimates.pdf"), width = 6, height = 8)
