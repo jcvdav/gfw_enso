@@ -36,7 +36,7 @@ rasters <- paste0(here("raw_data",
 # Read all rasters as a stack of rasters, delete areas with land (T > 35) and reduce resolution by a factor of 25
 r <- stack(rasters$path, varname = "sst4") %>%
   mask(mask = . > 35, maskvalue = T) %>% 
-  aggregate(fact = 24)
+  projectRaster(crs = crs(.), res = 0.1)
 
 # Delete heavy objects so that the next opperations fit in ram (about 14 GB needed)
 rm(all_indices)
