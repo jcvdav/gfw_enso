@@ -5,8 +5,8 @@
 .Rproj.user
 GFW/
 .httr-oauth
-raw_data/spatial/temp
-*.nc
+raw_data/spatial/wind
+*/sst_Reynolds.nc
 .dropbox
 .ini
 *.ini
