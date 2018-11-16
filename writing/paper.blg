@@ -1,56 +1,5 @@
-This is BibTeX, Version 0.99d (TeX Live 2015)
-Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
-The top-level auxiliary file: paper.aux
+This is BibTeX, Version 0.99dThe top-level auxiliary file: paper.aux
 The style file: naturemag.bst
 Database file #1: ./references.bib
-Repeated entry---line 437 of file ./references.bib
- :  @article{Lam:2016
- :                   ,
-I'm skipping whatever remains of this entry
-Repeated entry---line 448 of file ./references.bib
- :  @article{Sumaila:2011
- :                       ,
-I'm skipping whatever remains of this entry
 Warning--empty journal in SOFIA:2018
-You've used 13 entries,
-            2348 wiz_defined-function locations,
-            1076 strings with 11542 characters,
-and the built_in function-call counts, 4995 in all, are:
-= -- 338
-> -- 128
-< -- 1
-+ -- 64
-- -- 32
-* -- 623
-:= -- 567
-add.period$ -- 38
-call.type$ -- 13
-change.case$ -- 13
-chr.to.int$ -- 0
-cite$ -- 14
-duplicate$ -- 456
-empty$ -- 459
-format.name$ -- 43
-if$ -- 989
-int.to.chr$ -- 0
-int.to.str$ -- 13
-missing$ -- 106
-newline$ -- 72
-num.names$ -- 13
-pop$ -- 80
-preamble$ -- 1
-purify$ -- 0
-quote$ -- 0
-skip$ -- 70
-stack$ -- 0
-substring$ -- 224
-swap$ -- 450
-text.length$ -- 1
-text.prefix$ -- 0
-top$ -- 0
-type$ -- 0
-warning$ -- 1
-while$ -- 25
-width$ -- 15
-write$ -- 146
-(There were 2 error messages)
+(There was 1 warning)

@@ -61,6 +61,25 @@
 \newblock \emph{\bibinfo{journal}{Proc. Natl. Acad. Sci. U. S. A.}}
   (\bibinfo{year}{2018}).
 
+\bibitem{aqorau:2018}
+\bibinfo{author}{Aqorau, T.}, \bibinfo{author}{Bell, J.} \&
+  \bibinfo{author}{Kittinger, J.~N.}
+\newblock \bibinfo{title}{Good governance for migratory species}.
+\newblock \emph{\bibinfo{journal}{Science}} \textbf{\bibinfo{volume}{361}},
+  \bibinfo{pages}{1208.2--1209} (\bibinfo{year}{2018}).
+\newblock
+  \urlprefix\url{http://www.sciencemag.org/lookup/doi/10.1126/science.aav2051}.
+
+\bibitem{lehodey:1997}
+\bibinfo{author}{Lehodey, P.}, \bibinfo{author}{Bertignac, M.},
+  \bibinfo{author}{Hampton, J.}, \bibinfo{author}{Lewis, A.} \&
+  \bibinfo{author}{Picaut, J.}
+\newblock \bibinfo{title}{El niño southern oscillation and tuna in the western
+  pacific}.
+\newblock \emph{\bibinfo{journal}{Nature}} \textbf{\bibinfo{volume}{389}},
+  \bibinfo{pages}{715--718} (\bibinfo{year}{1997}).
+\newblock \urlprefix\url{http://www.nature.com/articles/39575}.
+
 \bibitem{Burbidge:1988}
 \bibinfo{author}{Burbidge, J.~B.}, \bibinfo{author}{Magee, L.} \&
   \bibinfo{author}{Robb, A.~L.}
