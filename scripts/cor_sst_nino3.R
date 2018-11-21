@@ -1,11 +1,10 @@
 # Load packages
-suppressPackageStartupMessages({
-  library(startR)
-  library(here)
-  library(raster)
-  library(magrittr)
-  library(tidyverse)
-})
+library(startR)
+library(lubridate)
+library(here)
+library(raster)
+library(magrittr)
+library(tidyverse)
 
 # Load indices
 all_indices <- read.csv(here("data","all_indices.csv"),
@@ -33,10 +32,24 @@ rasters <- paste0(here("raw_data",
   mutate(year = as.numeric(year),
          month = rep(1:12, 15))
 
+#print to check progress
+print("Read all raster names.")
+print("Proceeding to read all rasters...")
+
 # Read all rasters as a stack of rasters, delete areas with land (T > 35) and reduce resolution by a factor of 25
 r <- stack(rasters$path, varname = "sst4") %>%
-  mask(mask = . > 35, maskvalue = T) %>% 
-  projectRaster(crs = crs(.), res = 0.1)
+  mask(mask = . > 35, maskvalue = T) %>%
+  aggregate(fact = 2.4)
+
+#print to check progress
+print("Read all rasers.")
+print("Proceeding to reproject rasters...")
+
+r <- projectRaster(r, crs = crs(r), res = 0.1)
+
+#print to check progress
+print("Rastrers reprojected.")
+print("Proceed to create the entire data.frame...")
 
 # Delete heavy objects so that the next opperations fit in ram (about 14 GB needed)
 rm(all_indices)
@@ -67,6 +80,10 @@ sst_df %<>%
 
 saveRDS(object = sst_df, file = here("data", "sst_df_whole.rds"))
 
+#print to check progress
+print("Whole data.frame created and saved.")
+print("Proceed to create the correlations data.frame...")
+
 # Then group by pixel and calculate the correlation between SST and nino 3 for every pixel.
 sst_df %<>%
   group_by(longitude, latitude, month) %>%
@@ -82,6 +99,10 @@ sst_df %<>%
 
 # Export RDS object
 saveRDS(object = sst_df, file = here("data", "sst_nino3_df.rds"))
+
+#print to check progress
+print("Correlations data.frame created and saved.")
+print("Proceed to plot...")
 
 # Read the coastline
 world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
