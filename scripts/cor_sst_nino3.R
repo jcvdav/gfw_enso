@@ -16,7 +16,7 @@ all_indices <- read.csv(here("data","all_indices.csv"),
 # Keep nino3 index after 2002, and only year-month columns
 nino3test <- all_indices %>% 
   filter(year > 2002) %>% 
-  select(year, month = month_n, nino3anom)
+  select(year, month = month_n, nino34anom)
 
 # Identify the names of all rasters, and extract their year
 rasters <- paste0(here("raw_data",
@@ -92,8 +92,8 @@ sst_df %<>%
   filter(n > 3) %>%
   group_by(longitude, latitude, month) %>%
   summarize(mean_sst = mean(sst),
-			r = cor.test(sst, nino3anom)$estimate,
-			p = cor.test(sst, nino3anom)$p.value) %>% 
+            r = cor.test(sst, nino3anom)$estimate,
+            p = cor.test(sst, nino3anom)$p.value) %>% 
   ungroup() %>%  
   mutate(tele = ifelse((p < 0.1 & r > 0), 1, 0))
 

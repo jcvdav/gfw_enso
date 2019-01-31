@@ -24,6 +24,18 @@ nino3anom <- read.table(here("raw_data", "indices","nino3.long.anom.data")) %>%
   magrittr::set_colnames(c("year", month.name)) %>% 
   gather(month, nino3anom, -year)
 
+nino34 <- read.table(here("raw_data", "indices","nino34.long.data"),
+                     skip = 1,
+                     nrow = 148) %>% 
+  magrittr::set_colnames(c("year", month.name)) %>% 
+  gather(month, nino34, -year)
+
+nino3anom <- read.table(here("raw_data", "indices","nino34.long.anom.data")) %>% 
+  magrittr::set_colnames(c("year", month.name),
+                         skip = 1,
+                         nrow = 148) %>% 
+  gather(month, nino34anom, -year)
+
 nino4 <- read.table(here("raw_data", "indices","nino4.long.data")) %>% 
   magrittr::set_colnames(c("year", month.name)) %>% 
   gather(month, nino4, -year)
