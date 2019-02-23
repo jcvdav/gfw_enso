@@ -10,14 +10,12 @@
 # only three months are shown
 ####################################################
 
+library(startR)
+library(here)
 library(tidyverse)
 
 # Load data
-sst_nino34_cor_df <- readRDS(here::here("data", "sst_nino34_df.rds"))
-
-# Read the coastline
-world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
-world_coastline2 <- rnaturalearth::ne_coastline(returnclass = "sf")
+sst_nino34_cor_df <- readRDS(here::here("data", "sst_nino34_cor_df.rds"))
 
 # Create a dataset with
 treatment_regions <- sst_nino34_cor_df %>% 
@@ -40,6 +38,9 @@ treatment_regions <- sst_nino34_cor_df %>%
   gather(months, tele_binary, -c(longitude, latitude)) %>% 
   mutate(months = as.numeric(str_extract(string = months, pattern = "\\d+")))
 
+# Read the coastline
+world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
+world_coastline2 <- rnaturalearth::ne_coastline(returnclass = "sf")
 
 ## ALL PANELS
 # ENSO teleconnection depending on number of months. Number above figures indicate the minimum number of months for which a particular parcel was correlated to nino3 (red). For example, the panel 6 indicates that all red regions where SST showed a positive ( r > 0) and significant (p < 0.1) correlation with nino3 index for at least 6 months.
@@ -47,6 +48,7 @@ p <- ggplot() +
   ggtheme_map() +
   geom_raster(data = treatment_regions,
               aes(x = longitude, y = latitude, fill = as.factor(tele_binary*1))) +
+  facet_wrap(~months, ncol = 3) +
   geom_sf(data = world_coastline, color = "transparent") +
   geom_sf(data = world_coastline2, color = "black") +
   scale_fill_brewer(palette = "Set1", direction = -1) +

@@ -4,13 +4,10 @@ library(raster)
 library(here)
 library(tidyverse)
 
-# Read the coastline
-world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
-
 # Analyses here
-sst_df <- readRDS(here::here("data", "sst_nino34_cor_df.rds"))
+sst_nino34_cor_df <- readRDS(here::here("data", "sst_nino34_cor_df.rds"))
 
-treatment_regions <- sst_df %>% 
+treatment_regions <- sst_nino34_cor_df %>% 
   group_by(longitude, latitude) %>% 
   summarize(tele = sum(tele)) %>% 
   ungroup() %>% 
