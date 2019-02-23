@@ -146,19 +146,5 @@ saveRDS(object = sst_nino34_cor_df, file = here("data", "sst_nino34_cor_df.rds")
 
 #print to check progress
 print("Correlations data.frame created and saved.")
-print("Proceed to plot...")
 
-# Read the coastline
-world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
-
-# Monthly correlations between SST and nino34 index. Numbers above each pannel indicate the month (1 = Jan, 12 = Dec). Red zones indicate the pearson's correlation coefficient was > 0 and p < 0.1.
-p <- ggplot() +
-  ggtheme_map() +
-  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
-  geom_raster(data = sst_nino34_cor_df, aes(x = longitude, y = latitude, fill = as.factor(tele))) +
-  facet_wrap(~month, ncol = 3) +
-  scale_fill_brewer(palette = "Set1", direction = -1) +
-  theme(legend.position = "none")
-
-# Export plot
-ggsave(plot = p, filename = here("writing", "img", "cor_sst_nino34.pdf"), width = 6, height = 5)
+# END OF SCRIPT

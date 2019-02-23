@@ -30,17 +30,6 @@ treatment_regions <- sst_df %>%
   gather(months, tele_binary, -c(longitude, latitude)) %>% 
   mutate(months = as.numeric(str_extract(string = months, pattern = "\\d+")))
 
-# ENSO teleconnection depending on number of months. Number above figures indicate the minimum number of months for which a particular parcel was correlated to nino3 (red). For example, the panel 6 indicates that all red regions where SST showed a positive ( r > 0) and significant (p < 0.1) correlation with nino3 index for at least 6 months.
-p <- ggplot(treatment_regions) +
-  ggtheme_map() +
-  geom_sf(data = world_coastline, fill = "grey96", color = "grey40", size = .10) +
-  geom_raster(aes(x = longitude, y = latitude, fill = as.factor(tele_binary*1))) +
-  facet_wrap(~months, ncol = 3) +
-  scale_fill_brewer(palette = "Set1", direction = -1) +
-  theme(legend.position = "none")
-
-ggsave(plot = p, filename = here("writing", "img", "cor_sst_nino3_var.pdf"), width = 6, height = 5)
-
 treatment_3 <- treatment_regions %>% 
   filter(months == 3) %>% 
   select(longitude, latitude, tele_binary) %>% 
@@ -67,7 +56,18 @@ nino34 <- read.csv(here::here("data","all_indices.csv"),
   select(year, month = month_n, date, nino34anom)
 
 model_data <- gridded_ff %>% 
-  filter(is_foreign) %>%
+  filter(is_foreign,
+         hours > 0) %>% # Must filter out h = 0 because log(0) = !
+  left_join(nino34, by = c("year", "month", "date")) %>% 
+  left_join(treatment_3, by = c("longitude", "latitude")) %>% 
+  rename(treated = tele_binary) %>% 
+  mutate(treated = treated * 1,
+         log_hours = log(hours)) %>% #log transformation
+  mutate(month = as.factor(month))
+
+model_data2 <- gridded_ff %>% 
+  filter(is_foreign,
+         hours > 0) %>%
   left_join(nino34, by = c("year", "month", "date")) %>% 
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
@@ -75,17 +75,17 @@ model_data <- gridded_ff %>%
          hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
   mutate(month = as.factor(month))
 
-
 # Run the regressions
-model1 <- lm(hours ~ nino34anom * treated, data = model_data)
-model2 <- lm(hours ~ nino34anom * treated + best_label, data = model_data)
-model3 <- lm(hours ~ nino34anom * treated + best_label + month, data = model_data)
-model4 <- lm(hours ~ nino34anom * treated + best_label + month + iso3, data = model_data)
+model1 <- lm(log_hours ~ nino3anom * treated, data = model_data)
+model2 <- lm(log_hours ~ nino3anom * treated + best_label, data = model_data)
+model3 <- lm(log_hours ~ nino3anom * treated + best_label + month, data = model_data)
+model4 <- lm(log_hours ~ nino3anom * treated + best_label + month + iso3, data = model_data)
 
-model5 <- lm(hours2 ~ nino34anom * treated, data = model_data)
-model6 <- lm(hours2 ~ nino34anom * treated + best_label, data = model_data)
-model7 <- lm(hours2 ~ nino34anom * treated + best_label + month, data = model_data)
-model8 <- lm(hours2 ~ nino34anom * treated + best_label + month + iso3, data = model_data)
+model5 <- lm(hours2 ~ nino3anom * treated, data = model_data2)
+model6 <- lm(hours2 ~ nino3anom * treated + best_label, data = model_data2)
+model7 <- lm(hours2 ~ nino3anom * treated + best_label + month, data = model_data2)
+model8 <- lm(hours2 ~ nino3anom * treated + best_label + month + iso3, data = model_data2)
+
 
 models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
 
