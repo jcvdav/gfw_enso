@@ -161,4 +161,4 @@ p <- ggplot() +
   theme(legend.position = "none")
 
 # Export plot
-ggsave(plot = p, filename = here("img", "cor_sst_nino34.pdf"), width = 6, height = 5)
+ggsave(plot = p, filename = here("writing", "img", "cor_sst_nino34.pdf"), width = 6, height = 5)
