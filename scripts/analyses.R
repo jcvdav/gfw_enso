@@ -103,16 +103,30 @@ stargazer::stargazer(models,
                      font.size = "small")
 
 # Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).
+
+pd <- position_dodge(width = 0.5)
+
 p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
-  filter(term %in% c("(Intercept)", "nino34anom", "treated", "nino34anom:treated")) %>%
-  mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine")) %>% 
-  ggplot(aes(x = Model, y = estimate, group = Model)) +
+  filter(term == "nino34anom:treated") %>%
+  mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine"),
+         Model2 = case_when(Model %in% c(1, 5) ~ "base",
+                           Model %in% c(2, 6) ~ "+ gear",
+                           Model %in% c(3, 7) ~ "+ month",
+                           T ~ "+ flag"),
+         Model2 = fct_relevel(Model2, c("base", "+ gear", "+ month", "+ flag"))) %>% 
+  ggplot(aes(x = Model2, y = estimate, group = Model, color = class, fill = class)) +
   ggtheme_plot() +
-  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error), width = 0.1, size = 1, color = "red") +
-  geom_point(size = 2, shape = 21, fill = "steelblue") +
-  facet_wrap(term~class, scales = "free", ncol = 2)
+  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error),
+                width = 0.2,
+                position = pd) +
+  geom_point(size = 4,
+             shape = 21,
+             position = pd,
+             color = "black") +
+  scale_color_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set1")
 
 ggsave(plot = p,
        filename = here("writing", "img", "coef_estimates.pdf"),
        width = 6,
-       height = 8)
+       height = 4)
