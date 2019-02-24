@@ -104,7 +104,7 @@ stargazer::stargazer(models,
 
 # Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).
 p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
-  filter(term %in% c("(Intercept)", "nino3anom", "treated", "nino3anom:treated")) %>%
+  filter(term %in% c("(Intercept)", "nino34anom", "treated", "nino34anom:treated")) %>%
   mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine")) %>% 
   ggplot(aes(x = Model, y = estimate, group = Model)) +
   ggtheme_plot() +
