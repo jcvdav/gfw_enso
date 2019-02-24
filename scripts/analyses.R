@@ -73,15 +73,15 @@ model_data2 <- gridded_ff %>%
   mutate(month = as.factor(month))
 
 # Run the regressions
-model1 <- lm(log_hours ~ nino3anom * treated, data = model_data)
-model2 <- lm(log_hours ~ nino3anom * treated + best_label, data = model_data)
-model3 <- lm(log_hours ~ nino3anom * treated + best_label + month, data = model_data)
-model4 <- lm(log_hours ~ nino3anom * treated + best_label + month + iso3, data = model_data)
+model1 <- lm(log_hours ~ nino34anom * treated, data = model_data)
+model2 <- lm(log_hours ~ nino34anom * treated + best_label, data = model_data)
+model3 <- lm(log_hours ~ nino34anom * treated + best_label + month, data = model_data)
+model4 <- lm(log_hours ~ nino34anom * treated + best_label + month + iso3, data = model_data)
 
-model5 <- lm(hours2 ~ nino3anom * treated, data = model_data2)
-model6 <- lm(hours2 ~ nino3anom * treated + best_label, data = model_data2)
-model7 <- lm(hours2 ~ nino3anom * treated + best_label + month, data = model_data2)
-model8 <- lm(hours2 ~ nino3anom * treated + best_label + month + iso3, data = model_data2)
+model5 <- lm(hours2 ~ nino34anom * treated, data = model_data2)
+model6 <- lm(hours2 ~ nino34anom * treated + best_label, data = model_data2)
+model7 <- lm(hours2 ~ nino34anom * treated + best_label + month, data = model_data2)
+model8 <- lm(hours2 ~ nino34anom * treated + best_label + month + iso3, data = model_data2)
 
 
 models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
@@ -112,4 +112,7 @@ p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
   geom_point(size = 2, shape = 21, fill = "steelblue") +
   facet_wrap(term~class, scales = "free", ncol = 2)
 
-ggsave(plot = p, filename = here("writing", "img", "coef_estimates.pdf"), width = 6, height = 8)
+ggsave(plot = p,
+       filename = here("writing", "img", "coef_estimates.pdf"),
+       width = 6,
+       height = 8)
