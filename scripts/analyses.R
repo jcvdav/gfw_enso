@@ -108,14 +108,14 @@ pd <- position_dodge(width = 0.5)
 
 p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
   filter(term == "nino34anom:treated") %>%
-  mutate(class = ifelse(Model > 4, "Linear", "Hyperbolic Sine"),
+  mutate(class = ifelse(Model > 4, "Log-transformed", "Hyperbolic Sine"),
          Model2 = case_when(Model %in% c(1, 5) ~ "base",
                            Model %in% c(2, 6) ~ "+ gear",
                            Model %in% c(3, 7) ~ "+ month",
                            T ~ "+ flag"),
          Model2 = fct_relevel(Model2, c("base", "+ gear", "+ month", "+ flag"))) %>% 
   ggplot(aes(x = Model2, y = estimate, group = Model, color = class, fill = class)) +
-  ggtheme_plot() +
+  cowplot::theme_cowplot() +
   geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error),
                 width = 0.2,
                 position = pd) +
