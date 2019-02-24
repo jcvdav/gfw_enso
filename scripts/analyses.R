@@ -124,7 +124,14 @@ p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
              position = pd,
              color = "black") +
   scale_color_brewer(palette = "Set1") +
-  scale_fill_brewer(palette = "Set1")
+  scale_fill_brewer(palette = "Set1") +
+  theme(legend.justification = c(0, 1),
+        legend.position = c(0, 1),
+        text = element_text(size = 10),
+        axis.text = element_text(size = 8)) +
+  labs(x = "Model specification", y = "Coefficient estimate") +
+  guides(color = guide_legend(title = "Outcome Variable"),
+         fill = guide_legend(title = "Outcome Variable"))
 
 ggsave(plot = p,
        filename = here("writing", "img", "coef_estimates.pdf"),
