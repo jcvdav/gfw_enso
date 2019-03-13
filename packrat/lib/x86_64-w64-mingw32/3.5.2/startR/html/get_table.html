@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get tables from GoogleBigQuery</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for get_table {startR}"><tr><td>get_table {startR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get tables from GoogleBigQuery</h2>
+
+<h3>Description</h3>
+
+<p>This function downloads tables from GoogleBigQuery and brings them into memory as a normal r data.frame. The first time it is ran, you will have to authenticate into your GBQ account.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+get_table(project = "ucsb-gfw", dataset = NULL, table = NULL,
+  allowLargeResults = TRUE, show_tables = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>project</code></td>
+<td>
+<p>Name of the project, defaults to <code>ucsb-gfw</code></p>
+</td></tr>
+<tr valign="top"><td><code>dataset</code></td>
+<td>
+<p>Name of the dataset where the table lives</p>
+</td></tr>
+<tr valign="top"><td><code>table</code></td>
+<td>
+<p>Name of the table to download</p>
+</td></tr>
+<tr valign="top"><td><code>allowLargeResults</code></td>
+<td>
+<p>Allow large results?</p>
+</td></tr>
+<tr valign="top"><td><code>show_tables</code></td>
+<td>
+<p>Show all tables within the dataset before downloading?</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of clas <code>tbl.df</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+my_data &lt;- get_table(dataset = "foreign_fishing_ren",
+                     table = "annual_foreign_fishing")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>startR</em> version 0.1.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

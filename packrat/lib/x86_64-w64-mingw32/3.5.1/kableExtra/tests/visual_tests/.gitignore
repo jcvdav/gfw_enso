@@ -1,0 +1,10 @@
+figure
+*.html
+*.md
+*.pdf
+*.log
+*.tex
+*.synctex.gz
+*.lot
+*.docx
+.DS_store

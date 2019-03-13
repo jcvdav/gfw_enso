@@ -1,0 +1,24 @@
+Package: commarobust
+Type: Package
+Title: Robust Standard Errors for Stargazer Integration
+Version: 0.1.0
+Authors@R: person("Alexander", "Coppock", email = "acoppock@gmail.com",
+    role = c("aut", "cre"))
+Description: This package helps with an small problem: it can be
+    annoying to put robust standard errors in a stargazer table.
+License: GPL-3
+Depends: R (>= 3.0.1)
+Imports: sandwich, lmtest
+Suggests: randomizr, stargazer, testthat
+LazyData: TRUE
+RoxygenNote: 6.0.1
+GithubRepo: commarobust
+GithubUsername: acoppock
+GithubRef: master
+GithubSHA1: f16b1c43e0e93210fa3e2f3bf58694c3db3b1675
+Author: Alexander Coppock [aut, cre]
+Maintainer: Alexander Coppock <acoppock@gmail.com>
+Built: R 3.5.1; ; 2018-11-22 00:49:34 UTC; windows
+InstallAgent: packrat 0.4.9.2
+InstallSource: github
+Hash: f70d956d97081375f7932fb7e5ca0623

@@ -1,0 +1,11 @@
+create_dirs             Create directories
+create_manuscript       Create manuscript
+create_readme           Creat README
+ggtheme_map             Map theme
+ggtheme_plot            Plot theme
+im_lazy                 Lazy repository settup
+my_regtable             Customized 'stargazer' regression table
+render_doc              Render Document
+setup                   Setup
+sfc_as_cols             sfc_as_cols
+usual_suspects          Package loading
