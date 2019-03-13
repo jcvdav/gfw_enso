@@ -4,11 +4,10 @@
 ##########################################################
 
 ## Load packages
-library(tidyverse) # Load the tidyverse libraries
 library(lubridate) #Date management
 library(here) # Load the here package
+library(tidyverse) # Load the tidyverse libraries
 
-here <- here::here
 
 ## Process data
 # All files have the same structure.
