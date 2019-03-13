@@ -1,0 +1,242 @@
+---
+title: "El Niño drives foreign fishing"
+subtitle: "Submission for AERE Sponsored and General Sessions (905 Words)"
+author: |
+  Juan Carlos Villaseñor-Derbez^a^
+  Kimberly Oremus^a,b^
+date: |
+  ^a^Bren School of Environmental Science & Management, University of California Santa Barbara
+  ^b^School of Marine Science and Policy, University of Delaware
+output:
+  pdf_document:
+    keep_tex: yes
+    citation_package: natbib
+bibliography: references.bib
+header-includes:
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+---
+
+```{r, echo = F}
+
+knitr::opts_chunk$set(echo = FALSE,
+                        message = FALSE,
+                        warning = FALSE)
+
+run_analysis <- T
+
+## Dont touch
+
+if(!run_analysis){
+  knitr::opts_chunk$set(eval = FALSE,
+                        include = FALSE)
+}
+```
+
+
+# Introduction
+
+Warming oceans are causing marine taxa to redistribute poleward and to deeper waters \citep{pinsky_2013}. As species shift poleward, stocks are expected to move out of, into, and across Exclusive Economic Zones \citep{poloczanska_2013}, having major implications for fisheries management and livelihoods of these countries. This redistribution can also be caused by processes acting at a shorter timescale, like El Niño Southern Oscillation (ENSO). For example, Pacific Island Nations that are Parties to the Nauru Agreement (PNA) manage tuna stocks within their EEZs under a vessel-day scheme similar to a cap-and-trade regulation. La Niña and El Niño phases are associated to greater catches in the western and eastern boundaries of the PNA regions, respectively. As productivity shifts longitudinally, fishing permits and therefore allocation of fishing effort follow \citep{aqorau_2018}.
+
+The relevance of this problem has lead to calls from the scientific community to generate institutions that can provide resilience to climate variation and prepare ocean governance for "species on the move" \citep{pinsky_2018}. However, the extent to which this short- and long-term shifts result in behavioral changes from resource users has not yet been explored or empirically estimated. In this paper we combine vessel-detection technology and empirical identification strategies to quantify the effect of ENSO on foreign fishing behavior.
+
+# Methods
+
+We use data from Global Fishing Watch (GFW; [globalfishingwatch.org](www.globalfishingwatch.org)) to quantify the effect that ENSO has on foreign fishing. The vessel-detection database is a panel of fishing vessels for which we observe flag, gear, position (latitude, longitude) and fishing events (hours) from 2012 to present \citep{kroodsma_2018}. Our dataset contains information for a total of **n** vessels from **c** countries. We define foreign fishing as any fishing event in which a vessel's reported flag does not match the jurisdiction of the exclisive economic zone in which fishing takes place, and restrict our analyses to two main fishing gears: longliners and purseseiners[^1] (Fig \ref{fig:gfw}).
+
+[^1]: Longliners use a mother line with hundreds to thousands of baited hooks every few meters. Purse seiners use nets to enclose large schools of fish. Both methods are largely used for commercially important species, like Tuna and Swordfish.
+
+Temperature is one of the main environmental variables that drives species redistribution \citep{pinsky_2013}. However, environmental indices can be useful summaries of the overall environmental variation \citep{meng_2016}. We use a time series of NINO3 anomalies and combine it with a spatially-explicit time series of global Sea Surface Temperature (SST) to identify regions where changes in NINO3 lead to changes in SST. This approach has been previously used to identify "ENSO-teleconnected regions" \citep{hsiang_2011}. This allows us to identify regions where fishing effort is likely to be affected by changes between negative and positive ENSO phases (Fig. \ref{fig:teleconnections}.
+
+Our empirical strategy uses a difference-in-differences approach. We estimate the effects of ENSO on Foreign Fishing by comparing the effects between regions impacted by ENSO regions not impacted by ENSO:
+
+$$
+log(FF_{rgct}) = \beta ENSO_{t} \times \mathbb{I}_{Lat, Lon \epsilon r} + \gamma ENSO_{t} + \xi \mathbb{I}_{Lat, Lon \epsilon r} + \theta_{g} + \phi_{t} + \lambda_{c} + \epsilon_{rgct}
+$$
+
+$FF_{gct}$ represents the foreign fishing variable of interest by gear, country and year. In the main specification, we use an inverse hyperbolic sine of foreign fishing, which approximates a log transform of FF[^2], to transform zeroes in our data \cite{Burbidge:1988, Card:2017}. $\alpha$ is a constant and $\beta$ captures the linear effect of ENSO on effected regions compared to regions uneffected by ENSO. The treatment is ENSO and it is interacted with a dummy, $\mathbb{I}_{Lat, Lon \epsilon r}$, that equals 1 for regions in the ENSO-effected region and 0 for counties in uneffected-ENSO regions. $\gamma$ is the average effect of ENSO over both the treated and untread regions and $\xi$ is the average effect of being in the treatment region vs. not being the treatment region. $\theta_{g}$ are gear fixed effects, $\phi_{t}$ are monthly fixed effects and $\lambda_{c}$ are country (flag) fixed effects.
+
+[^2]: $ln(FF + \sqrt{1 + FF^2} \rightarrow ln(2L)$
+
+# Results
+
+Our results suggest that positive ENSO phases lead to an increase in foreign fishing hours. The result is robust across a set of specifications and to both measures of foreign fishing (*i.e.* hours and their hyperoblic transformation; Table \ref{tab:tab:ff_reg}). The base model shows that, on average, a one-unit increase in the NINO3 index leads to an additional 1.024 hours hours of foreign fishing per month for all vessels (*i.e.* vessels in treated and untreated regions). At the same time, we find a positive interaction effect in the ortder of 0.941 additional foreign fishing hours per unit increase in NINO3 index for vessels in ENSO-effected regions.
+
+Our results also suggest that the change in foreign fishing hours is greater for longliners than for purse seiners. This may be related to how adaptive these gears are, or to the restriction that a variable climate induces on each gear. For example, positive ENSO phases are known to increase termocline depth, which facilitates escapement of tuna and lead to an increase in the proportion of null sets[^3] in Mexican tuna purse seiners \citep{dreyfusleon_2015}.
+
+[^3]: Null sets are described as events where purse seiners cast their nets around tuna, but these manage to escape under the net before the set is completed.
+
+# Conclusion
+
+Our results suggest that positive ENSO phases lead to an increase in foreign fishing hours. This quantitative evidence linking climate and fishing behavior have important implications for climate projections and adaptation of this sector.
+
+# Figures and tables
+
+```{r}
+# Load packages
+library(startR)
+library(raster)
+library(lubridate)
+library(here)
+library(tidyverse)
+
+# Read the coastline
+world_coastline <- rnaturalearth::ne_countries(returnclass = "sf")
+world_coastline2 <- rnaturalearth::ne_coastline(returnclass = "sf")
+
+# Read the fishing effort
+gridded_ff <- readRDS(file = here::here("raw_data", "gridded_ff_by_gear_country.rds")) %>% 
+  filter(best_label %in% c("drifting_longlines", "set_longlines", "drifting_longlines|set_longlines", "tuna_purse_seines", "other_purse_seines", "purse_seines")) %>% 
+  mutate(date = date(paste(year, month, "01", sep = "/")),
+         best_label = ifelse(str_detect(best_label, "purse"), "purse_seines", best_label))
+
+sst_df <- readRDS(here::here("data", "sst_nino3_df.rds"))
+
+treatment_regions <- sst_df %>% 
+  group_by(longitude, latitude) %>% 
+  summarize(tele = sum(tele)) %>% 
+  ungroup() %>% 
+  mutate(tele_1 = tele >= 1,
+         tele_2 = tele >= 2,
+         tele_3 = tele >= 3,
+         tele_4 = tele >= 4,
+         tele_5 = tele >= 5,
+         tele_6 = tele >= 6,
+         tele_7 = tele >= 7,
+         tele_8 = tele >= 8,
+         tele_9 = tele >= 9,
+         tele_10 = tele >= 10,
+         tele_11 = tele >= 11,
+         tele_12 = tele >= 12) %>% 
+  select(-tele) %>% 
+  gather(months, tele_binary, -c(longitude, latitude)) %>% 
+  mutate(months = as.numeric(str_extract(string = months, pattern = "\\d+")))
+```
+
+```{r, fig.width = 7, fig.height = 2, fig.cap = "\\label{fig:gfw} Local and foreign fishing effort (hours)."}
+# Plot the raster
+gridded_ff %>% 
+  filter(hours > 0) %>% 
+  group_by(is_foreign, latitude, longitude) %>% 
+  summarize(hours = sum(hours, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(is_foreign = ifelse(is_foreign, "Foreign", "Local")) %>% 
+  ggplot() +
+  ggtheme_map() +
+  theme_dark() +
+  geom_raster(aes(x = longitude, y = latitude, fill = hours)) +
+  geom_sf(data = world_coastline, fill = "black") +
+  facet_wrap(~is_foreign, ncol = 2) +
+  scale_fill_viridis_c(trans = "log10") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = "", y = "", fill = "Fishing hours")
+```
+
+```{r, fig.width = 3.5, fig.height = 2, fig.cap = "\\label{fig:teleconnections} ENSO-Teleconnected marine regions. Red and blue indicate the when  where SST showed a positive (r > 0) and significant (p < 0.1) correlation with NINO3 index for at least 3 months. White areas represent areas where SST data is no available."}
+filter(treatment_regions, months == 3) %>% 
+  ggplot() +
+  ggtheme_map() +
+  geom_raster(aes(x = longitude, y = latitude, fill = as.factor(tele_binary*1))) +
+  geom_sf(data = world_coastline, color = "transparent") +
+  geom_sf(data = world_coastline2, color = "black") +
+  scale_fill_brewer(palette = "Set1", direction = -1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme(legend.position = "none")
+```
+
+
+```{r, results = "asis"}
+treatment_3 <- treatment_regions %>% 
+  filter(months == 3) %>% 
+  select(longitude, latitude, tele_binary) %>% 
+  raster::rasterFromXYZ() %>% 
+  raster::disaggregate(fact = 10) %>% 
+  as.data.frame(xy = T) %>% 
+  magrittr::set_colnames(value = c("longitude", "latitude", "tele_binary")) %>% 
+  as_tibble() %>% 
+  mutate(latitude = round(latitude, digits = 2),
+         longitude = round(longitude, digits = 2))
+
+nino3 <- read.csv(here::here("data","all_indices.csv"),
+                  stringsAsFactors = F)%>%
+  mutate(season = case_when(month_n %in% c(12, 1, 2) ~ "winter",
+                            month_n %in% c(3, 4, 5) ~ "spring",
+                            month_n %in% c(6, 7, 8) ~ "summer",
+                            TRUE ~ "fall")) %>% 
+  filter(year > 1950) %>% 
+  mutate(date = lubridate::date(date)) %>% 
+  select(year, month = month_n, date, nino3, nino3anom)
+
+model_data <- gridded_ff %>% 
+  filter(is_foreign,
+         hours > 0) %>%
+  left_join(nino3, by = c("year", "month", "date")) %>% 
+  left_join(treatment_3, by = c("longitude", "latitude")) %>% 
+  rename(treated = tele_binary) %>% 
+  mutate(treated = treated * 1,
+         log_hours = log(hours)) %>% #Hyperbolic transformation
+  mutate(month = as.factor(month))
+
+model_data2 <- gridded_ff %>% 
+  filter(is_foreign,
+         hours > 0) %>%
+  left_join(nino3, by = c("year", "month", "date")) %>% 
+  left_join(treatment_3, by = c("longitude", "latitude")) %>% 
+  rename(treated = tele_binary) %>% 
+  mutate(treated = treated * 1,
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
+  mutate(month = as.factor(month))
+
+# Run the regressions
+model1 <- lm(log_hours ~ nino3anom * treated, data = model_data)
+model2 <- lm(log_hours ~ nino3anom * treated + best_label, data = model_data)
+model3 <- lm(log_hours ~ nino3anom * treated + best_label + month, data = model_data)
+model4 <- lm(log_hours ~ nino3anom * treated + best_label + month + iso3, data = model_data)
+
+model5 <- lm(hours2 ~ nino3anom * treated, data = model_data2)
+model6 <- lm(hours2 ~ nino3anom * treated + best_label, data = model_data2)
+model7 <- lm(hours2 ~ nino3anom * treated + best_label + month, data = model_data2)
+model8 <- lm(hours2 ~ nino3anom * treated + best_label + month + iso3, data = model_data2)
+
+models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
+
+# Stargazer table
+stargazer::stargazer(models,
+                     se = commarobust::makerobustseslist(models),
+                     type = "latex",
+                     omit = c("best", "iso3", "month"),
+                     add.lines = list(c("Gear FE", "No", "Yes", "Yes", "Yes", "No", "Yes", "Yes", "Yes"),
+                                      c("Month FE", "No", "No", "Yes", "Yes", "No", "No", "Yes", "Yes"),
+                                      c("Country FE", "No", "No", "No", "Yes", "No", "No", "No", "Yes")),
+                     omit.stat = c("adj.rsq", "f", "ser"),
+                     header = F,
+                     title = "\\label{tab:ff_reg}Foreign fishing hours and NINO3",
+                     font.size = "small",
+                     out = "test.html")
+```
+
+\clearpage
+
+# References
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
