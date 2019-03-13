@@ -15,3 +15,4 @@ data/sst_*
 .RDataTmp
 raw_data/*
 raw_data/gridded_ff_by_gear_country.rds
+slides/*
