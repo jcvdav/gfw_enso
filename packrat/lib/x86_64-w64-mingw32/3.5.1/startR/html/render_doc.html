@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Render Document</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for render_doc {startR}"><tr><td>render_doc {startR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Render Document</h2>
+
+<h3>Description</h3>
+
+<p>Calls <code>rmarkdown::render()</code> to produce the output of a given rmd file
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+render_doc(file, rmd_dir = "rmd", output_dir = "docs", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A character vector specifying the file name</p>
+</td></tr>
+<tr valign="top"><td><code>rmd_dir</code></td>
+<td>
+<p>The directory where the file lives, specified as a character vector</p>
+</td></tr>
+<tr valign="top"><td><code>output_dir</code></td>
+<td>
+<p>The output directory, where the knitted versions will be placed</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+I have a file called \code{"manuscript.rmd"} that lives in my \code{"repo/rmd/"} directory.
+## Not run: 
+render_doc(file = "manuscript.rmd")
+
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>startR</em> version 0.1.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

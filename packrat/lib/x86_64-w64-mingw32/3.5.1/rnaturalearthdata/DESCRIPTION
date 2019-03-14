@@ -1,0 +1,19 @@
+Package: rnaturalearthdata
+Title: World Vector Map Data from Natural Earth Used in 'rnaturalearth'
+Version: 0.2.0
+Authors@R: person("Andy", "South", , "southandy@gmail.com", role = c("aut", "cre"))
+Description: Vector map data from <http://www.naturalearthdata.com/>. Access functions are provided in the accompanying package 'rnaturalearth'.
+License: CC0
+LazyData: true
+LazyDataCompression: xz
+URL: https://github.com/ropensci/rnaturalearthdata
+BugReports: https://github.com/ropensci/rnaturalearthdata/issues
+Depends: R (>= 3.1.1)
+Imports: sp (>= 1.0.15)
+Suggests: knitr (>= 1.12.3), testthat (>= 0.9.1)
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2018-07-06 00:52:06 UTC; root
+Author: Andy South [aut, cre]
+Maintainer: Andy South <southandy@gmail.com>
+Built: R 3.5.1; ; 2019-01-14 19:25:27 UTC; windows

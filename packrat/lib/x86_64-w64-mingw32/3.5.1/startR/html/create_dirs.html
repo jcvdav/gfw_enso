@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create directories</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for create_dirs {startR}"><tr><td>create_dirs {startR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create directories</h2>
+
+<h3>Description</h3>
+
+<p>Creates a set of standard directories: raw_data, data, rmd, docs, scripts
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+create_dirs(other_dirs = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>other_dirs</code></td>
+<td>
+<p>If needed, a character vector containing the names for extra directories.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+create_dirs() # This creates default directories
+
+create_dirs(other_dirs = "figures") # Creates all default directories and a figures directory
+
+## End(Not run)
+
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>startR</em> version 0.1.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

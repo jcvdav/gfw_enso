@@ -1,0 +1,183 @@
+
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #library(rgdal2)
+> #openOGRLayer("PG:dbname=postgis" , "meuse2")
+> 
+> suppressPackageStartupMessages(library(sf))
+> outer = matrix(c(0,0,10,0,10,10,0,10,0,0),ncol=2, byrow=TRUE)
+> hole1 = matrix(c(1,1,1,2,2,2,2,1,1,1),ncol=2, byrow=TRUE)
+> hole2 = matrix(c(5,5,5,6,6,6,6,5,5,5),ncol=2, byrow=TRUE)
+> pol1 = list(outer, hole1, hole2)
+> pol2 = list(outer + 12, hole1 + 12)
+> pol3 = list(outer + 24)
+> mp = list(pol1,pol2,pol3)
+> mp1 = st_multipolygon(mp)
+> sf = st_sf(a=1, st_sfc(mp1))
+> a = as(sf, "Spatial")
+> class(a)
+[1] "SpatialPolygonsDataFrame"
+attr(,"package")
+[1] "sp"
+> b = st_as_sf(a)
+> a2 = as(a, "SpatialPolygonsDataFrame")
+> all.equal(a, a2) # round-trip
+[1] TRUE
+> 
+> b1 = as(a, "sf")
+> all.equal(b, b1)
+[1] TRUE
+> b = st_as_sfc(a)
+> b1 = as(a, "sfc")
+> all.equal(b, b1)
+[1] TRUE
+> 
+> # SpatialMultiPoints
+> library(sp)
+> set.seed(1331)
+> example(SpatialMultiPoints, ask = FALSE, echo = FALSE) # loads mpdf
+SpatialMultiPoints:
+                                                                                   geometry
+1                                                MULTIPOINT (9.38 11.5,11.1 9.85,9.76 11.2)
+2                     MULTIPOINT (10.4 -0.583,10.5 -0.313,9.8 -1.05,10.3 -0.719,11.4 -1.05)
+3 MULTIPOINT (-0.844 9.18,1.14 10.8,1.95 10.8,-0.451 10.7,0.67 10.3,0.127 10.5,-0.727 9.23)
+Coordinate Reference System (CRS) arguments: NA 
+Warning message:
+In data.row.names(row.names, rowsi, i) :
+  some row.names duplicated: 2,3,5,6,7,8,10,11,12,13,14,15 --> row.names NOT used
+> m = st_as_sf(mpdf)
+> all.equal(as(m, "Spatial"), mpdf) # TRUE
+[1] TRUE
+> 
+> demo(meuse, ask = FALSE, echo = FALSE)
+> meuse = spTransform(meuse, CRS("+init=epsg:4326"))
+> pol.grd = as(meuse.grid, "SpatialPolygonsDataFrame")
+> meuse.grd = spTransform(meuse.grid, CRS("+init=epsg:4326"))
+Warning message:
+In spTransform(meuse.grid, CRS("+init=epsg:4326")) :
+  Grid warping not available, coercing to points
+> pol.grd = spTransform(pol.grd, CRS("+init=epsg:4326"))
+> meuse.area = spTransform(meuse.area, CRS("+init=epsg:4326"))
+> meuse.riv = spTransform(meuse.riv, CRS("+init=epsg:4326"))
+> summary(st_as_sf(meuse))
+    cadmium           copper            lead            zinc       
+ Min.   : 0.200   Min.   : 14.00   Min.   : 37.0   Min.   : 113.0  
+ 1st Qu.: 0.800   1st Qu.: 23.00   1st Qu.: 72.5   1st Qu.: 198.0  
+ Median : 2.100   Median : 31.00   Median :123.0   Median : 326.0  
+ Mean   : 3.246   Mean   : 40.32   Mean   :153.4   Mean   : 469.7  
+ 3rd Qu.: 3.850   3rd Qu.: 49.50   3rd Qu.:207.0   3rd Qu.: 674.5  
+ Max.   :18.100   Max.   :128.00   Max.   :654.0   Max.   :1839.0  
+                                                                   
+      elev             dist               om         ffreq  soil   lime   
+ Min.   : 5.180   Min.   :0.00000   Min.   : 1.000   1:84   1:97   0:111  
+ 1st Qu.: 7.546   1st Qu.:0.07569   1st Qu.: 5.300   2:48   2:46   1: 44  
+ Median : 8.180   Median :0.21184   Median : 6.900   3:23   3:12          
+ Mean   : 8.165   Mean   :0.24002   Mean   : 7.478                        
+ 3rd Qu.: 8.955   3rd Qu.:0.36407   3rd Qu.: 9.000                        
+ Max.   :10.520   Max.   :0.88039   Max.   :17.000                        
+                                    NA's   :2                             
+    landuse       dist.m                geometry  
+ W      :50   Min.   :  10.0   POINT        :155  
+ Ah     :39   1st Qu.:  80.0   epsg:4326    :  0  
+ Am     :22   Median : 270.0   +proj=long...:  0  
+ Fw     :10   Mean   : 290.3                      
+ Ab     : 8   3rd Qu.: 450.0                      
+ (Other):25   Max.   :1000.0                      
+ NA's   : 1                                       
+> summary(st_as_sf(meuse.grd))
+     part.a           part.b            dist        soil     ffreq   
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   1:1665   1: 779  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.1193   2:1084   2:1335  
+ Median :0.0000   Median :1.0000   Median :0.2715   3: 354   3: 989  
+ Mean   :0.3986   Mean   :0.6014   Mean   :0.2971                    
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.4402                    
+ Max.   :1.0000   Max.   :1.0000   Max.   :0.9926                    
+          geometry   
+ POINT        :3103  
+ epsg:4326    :   0  
+ +proj=long...:   0  
+                     
+                     
+                     
+> x <- st_as_sf(meuse.grid) # don't print: CRS variations.
+> summary(st_as_sf(meuse.area))
+          geometry
+ POLYGON      :1  
+ epsg:4326    :0  
+ +proj=long...:0  
+> summary(st_as_sf(meuse.riv))
+          geometry
+ POLYGON      :1  
+ epsg:4326    :0  
+ +proj=long...:0  
+> summary(st_as_sf(as(meuse.riv, "SpatialLines")))
+          geometry
+ LINESTRING   :1  
+ epsg:4326    :0  
+ +proj=long...:0  
+> summary(st_as_sf(pol.grd))
+     part.a           part.b            dist        soil     ffreq   
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   1:1665   1: 779  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.1193   2:1084   2:1335  
+ Median :0.0000   Median :1.0000   Median :0.2715   3: 354   3: 989  
+ Mean   :0.3986   Mean   :0.6014   Mean   :0.2971                    
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.4402                    
+ Max.   :1.0000   Max.   :1.0000   Max.   :0.9926                    
+          geometry   
+ POLYGON      :3103  
+ epsg:4326    :   0  
+ +proj=long...:   0  
+                     
+                     
+                     
+> summary(st_as_sf(as(pol.grd, "SpatialLinesDataFrame")))
+     part.a           part.b            dist        soil     ffreq   
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   1:1665   1: 779  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.1193   2:1084   2:1335  
+ Median :0.0000   Median :1.0000   Median :0.2715   3: 354   3: 989  
+ Mean   :0.3986   Mean   :0.6014   Mean   :0.2971                    
+ 3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:0.4402                    
+ Max.   :1.0000   Max.   :1.0000   Max.   :0.9926                    
+          geometry   
+ LINESTRING   :3103  
+ epsg:4326    :   0  
+ +proj=long...:   0  
+                     
+                     
+                     
+> 
+> # roundtrip nc: sf -> sp -> sf
+> # nc = st_read(system.file("gpkg/nc.gpkg", package="sf"), "nc.gpkg")
+> nc = st_read(system.file("shape/nc.shp", package="sf"), "nc", quiet = TRUE)
+> p4s = "+proj=longlat +datum=NAD27 +no_defs +ellps=clrk66 +nadgrids=@conus,@alaska,@ntv2_0.gsb,@ntv1_can.dat"
+> suppressWarnings(st_crs(nc) <- p4s)
+> names(nc)[15] = "geometry"
+> attr(nc, "sf_column") = "geometry"
+> attr(nc$geometry, "crs")$epsg = NA_integer_
+> all.equal(nc, st_as_sf(as(nc, "Spatial")))
+[1] TRUE
+> 
+> sp = as(nc, "Spatial")
+> comment(sp) = "FALSE"
+> all.equal(nc, st_as_sf(sp))
+[1] TRUE
+> detach("package:sp")
+> unloadNamespace("rgeos")
+> 
+> proc.time()
+   user  system elapsed 
+  3.480   0.275   3.433 
