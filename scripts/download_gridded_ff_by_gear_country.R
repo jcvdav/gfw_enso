@@ -13,7 +13,8 @@ gff <- get_table(dataset = "enso_gfw",
                  show_tables = T)
 
 # If the above didn't fail, we now tidy-up our data
-gff <- gff %>%  
+gff <- gff %>%
+  distinct() %>% 
   mutate(foreign = as.logical(foreign)) %>% 
   mutate(date = lubridate::date(paste(year, month, "01", sep = "/"))) %>% 
   select(year,
