@@ -31,7 +31,6 @@ treatment_3 <- treatment_regions %>%
   filter(months == 3) %>% 
   select(longitude, latitude, tele_binary) %>% 
   rasterFromXYZ() %>% 
-  disaggregate(fact = 10) %>% 
   as.data.frame(xy = T) %>% 
   magrittr::set_colnames(value = c("longitude", "latitude", "tele_binary")) %>% 
   as_tibble() %>% 
@@ -52,19 +51,19 @@ nino34 <- read.csv(here::here("data","all_indices.csv"),
   mutate(date = lubridate::date(date)) %>% 
   select(year, month = month_n, date, nino34anom)
 
-model_data <- gridded_ff %>% 
-  filter(is_foreign,
-         hours > 0) %>% # Must filter out h = 0 because log(0) = !
+model_data_ps <- gridded_ff %>% 
+  filter(foreign,
+         best_label == "tuna_purse_seines") %>%
   left_join(nino34, by = c("year", "month", "date")) %>% 
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
   mutate(treated = treated * 1,
-         log_hours = log(hours)) %>% #log transformation
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
   mutate(month = as.factor(month))
 
-model_data2 <- gridded_ff %>% 
-  filter(is_foreign,
-         hours > 0) %>%
+model_data_ll <- gridded_ff %>% 
+  filter(foreign,
+         !best_label == "tuna_purse_seines") %>%
   left_join(nino34, by = c("year", "month", "date")) %>% 
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
@@ -73,50 +72,47 @@ model_data2 <- gridded_ff %>%
   mutate(month = as.factor(month))
 
 # Run the regressions
-model1 <- lm(log_hours ~ nino34anom * treated, data = model_data)
-model2 <- lm(log_hours ~ nino34anom * treated + best_label, data = model_data)
-model3 <- lm(log_hours ~ nino34anom * treated + best_label + month, data = model_data)
-model4 <- lm(log_hours ~ nino34anom * treated + best_label + month + iso3, data = model_data)
+ps1 <- lm(hours2 ~ nino34anom * treated, data = model_data_ps)
+ps2 <- lm(hours2 ~ nino34anom * treated + month, data = model_data_ps)
+ps3 <- lm(hours2 ~ nino34anom * treated + month + best_flag, data = model_data_ps)
 
-model5 <- lm(hours2 ~ nino34anom * treated, data = model_data2)
-model6 <- lm(hours2 ~ nino34anom * treated + best_label, data = model_data2)
-model7 <- lm(hours2 ~ nino34anom * treated + best_label + month, data = model_data2)
-model8 <- lm(hours2 ~ nino34anom * treated + best_label + month + iso3, data = model_data2)
+# Run the regressions
+ll1 <- lm(hours2 ~ nino34anom * treated, data = model_data_ll)
+ll2 <- lm(hours2 ~ nino34anom * treated + month, data = model_data_ll)
+ll3 <- lm(hours2 ~ nino34anom * treated + month + best_flag, data = model_data_ll)
 
 
-models <- list(model1, model2, model3, model4, model5, model5, model7, model8)
+models <- list(ps1, ps2, ps3, ll1, ll2, ll3)
 
 # Stargazer table
-stargazer::stargazer(models,
+stargazer::stargazer(models, 
                      se = commarobust::makerobustseslist(models),
+                     dep.var.labels = "Monthly foreign fishing hours",
                      t.auto = T,
                      se.auto = T,
                      type = "latex",
-                     omit = c("best", "iso3", "month"),
-                     add.lines = list(c("Gear FE", "No", "Yes", "Yes", "Yes", "No", "Yes", "Yes", "Yes"),
-                                      c("Month FE", "No", "No", "Yes", "Yes", "No", "No", "Yes", "Yes"),
-                                      c("Country FE", "No", "No", "No", "Yes", "No", "No", "No", "Yes")),
+                     omit = c("flag", "month"),
+                     add.lines = list(c("Month FE", rep(c("No", "Yes", "Yes"), 2)),
+                                      c("Country FE", rep(c("No", "No", "Yes"), 2))),
                      omit.stat = c("adj.rsq", "f", "ser"),
                      header = F,
-                     title = "\\label{tab:ff_reg}Foreign fishing hours and nino3",
-                     out = here("writing", "tab", "DID.tex"),
-                     font.size = "small")
+                     title = "\\label{tab:ff_reg}Effect of NINO3.4 anomally index on foreign fishing for purse seiners (1-3) and longliners(4-6).",
+                     out = here("writing", "tab", "DID.tex"))
 
 # Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours. Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).
 
 pd <- position_dodge(width = 0.5)
 
-p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
+p <- purrr::map_df(models, commarobust::commarobust_tidy, .id = "Model") %>%
   filter(term == "nino34anom:treated") %>%
-  mutate(class = ifelse(Model > 4, "Log-transformed", "Hyperbolic Sine"),
-         Model2 = case_when(Model %in% c(1, 5) ~ "base",
-                           Model %in% c(2, 6) ~ "+ gear",
-                           Model %in% c(3, 7) ~ "+ month",
-                           T ~ "+ flag"),
-         Model2 = fct_relevel(Model2, c("base", "+ gear", "+ month", "+ flag"))) %>% 
-  ggplot(aes(x = Model2, y = estimate, group = Model, color = class, fill = class)) +
+  mutate(class = ifelse(Model < 4, "Purse Seines", "Longlines"),
+         Model2 = case_when(Model %in% c(1, 4) ~ "base",
+                            Model %in% c(2, 5) ~ " + month",
+                            T ~ "+ flag"),
+         Model2 = fct_relevel(Model2, c("base", "+ month", "+ flag"))) %>% 
+  ggplot(aes(x = Model2, y = est, group = Model, color = class, fill = class)) +
   cowplot::theme_cowplot() +
-  geom_errorbar(aes(ymin = estimate - std.error, ymax = estimate + std.error),
+  geom_errorbar(aes(ymin = est - se, ymax = est + se),
                 width = 0.2,
                 position = pd) +
   geom_point(size = 4,
@@ -130,8 +126,9 @@ p <- purrr::map_df(models, broom::tidy, .id = "Model") %>%
         text = element_text(size = 10),
         axis.text = element_text(size = 8)) +
   labs(x = "Model specification", y = "Coefficient estimate") +
-  guides(color = guide_legend(title = "Outcome Variable"),
-         fill = guide_legend(title = "Outcome Variable"))
+  guides(color = guide_legend(title = "Gear"),
+         fill = guide_legend(title = "Gear")) +
+  scale_y_continuous(limits = c(0, 0.1))
 
 ggsave(plot = p,
        filename = here("writing", "img", "coef_estimates.pdf"),
