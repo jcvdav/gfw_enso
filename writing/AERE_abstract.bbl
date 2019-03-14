@@ -1,0 +1,106 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Aqorau et~al.(2018)Aqorau, Bell, and Kittinger]{aqorau_2018}
+Transform Aqorau, Johann Bell, and John~N. Kittinger.
+\newblock Good governance for migratory species.
+\newblock \emph{Science}, 361\penalty0 (6408):\penalty0 1208.2--1209, sep 2018.
+\newblock ISSN 0036-8075.
+\newblock \doi{10.1126/science.aav2051}.
+\newblock URL
+  \url{http://www.sciencemag.org/lookup/doi/10.1126/science.aav2051}.
+
+\bibitem[Burbidge et~al.(1988)Burbidge, Magee, and Robb]{Burbidge:1988}
+John~B Burbidge, Lonnie Magee, and A~Leslie Robb.
+\newblock Alternative transformations to handle extreme values of the dependent
+  variable.
+\newblock \emph{J. Am. Stat. Assoc.}, 83\penalty0 (401):\penalty0 123--127,
+  1988.
+
+\bibitem[Card and DellaVigna(2017)]{Card:2017}
+David Card and Stefano DellaVigna.
+\newblock What do editors maximize? evidence from four leading economics
+  journals.
+\newblock Working Paper 23282, National Bureau of Economic Research, March
+  2017.
+
+\bibitem[Dreyfus-Leon(2015)]{dreyfusleon_2015}
+Michel~J Dreyfus-Leon.
+\newblock Analysis of null sets (zero catch) made by the mexican tuna purse
+  seine fleet (2000–2013).
+\newblock \emph{Cienc Mar}, 41\penalty0 (2):\penalty0 85--92, jun 2015.
+\newblock ISSN 01853880.
+\newblock \doi{10.7773/cm.v41i2.2471}.
+\newblock URL
+  \url{http://www.cienciasmarinas.com.mx/index.php/cmarinas/article/view/2471/1552}.
+
+\bibitem[Hsiang et~al.(2011)Hsiang, Meng, and Cane]{hsiang_2011}
+Solomon~M Hsiang, Kyle~C Meng, and Mark~A Cane.
+\newblock Civil conflicts are associated with the global climate.
+\newblock \emph{Nature}, 476\penalty0 (7361):\penalty0 438--441, aug 2011.
+\newblock ISSN 1476-4687.
+\newblock \doi{10.1038/nature10311}.
+\newblock URL \url{http://dx.doi.org/10.1038/nature10311}.
+
+\bibitem[Kroodsma et~al.(2018)Kroodsma, Mayorga, Hochberg, Miller, Boerder,
+  Ferretti, Wilson, Bergman, White, Block, Woods, Sullivan, Costello, and
+  Worm]{kroodsma_2018}
+David~A Kroodsma, Juan Mayorga, Timothy Hochberg, Nathan~A Miller, Kristina
+  Boerder, Francesco Ferretti, Alex Wilson, Bjorn Bergman, Timothy~D White,
+  Barbara~A Block, Paul Woods, Brian Sullivan, Christopher Costello, and Boris
+  Worm.
+\newblock Tracking the global footprint of fisheries.
+\newblock \emph{Science}, 359\penalty0 (6378):\penalty0 904--908, feb 2018.
+\newblock ISSN 0036-8075.
+\newblock \doi{10.1126/science.aao5646}.
+\newblock URL
+  \url{http://www.sciencemag.org/lookup/doi/10.1126/science.aao5646}.
+
+\bibitem[Meng et~al.(2016)Meng, Oremus, and Gaines]{meng_2016}
+Kyle~C Meng, Kimberly~L Oremus, and Steven~D Gaines.
+\newblock New england cod collapse and the climate.
+\newblock \emph{{PLoS} {ONE}}, 11\penalty0 (7):\penalty0 e0158487, jul 2016.
+\newblock \doi{10.1371/journal.pone.0158487}.
+\newblock URL \url{http://dx.doi.org/10.1371/journal.pone.0158487}.
+
+\bibitem[Pinsky et~al.(2013)Pinsky, Worm, Fogarty, Sarmiento, and
+  Levin]{pinsky_2013}
+Malin~L Pinsky, Boris Worm, Michael~J Fogarty, Jorge~L Sarmiento, and Simon~A
+  Levin.
+\newblock Marine taxa track local climate velocities.
+\newblock \emph{Science}, 341\penalty0 (6151):\penalty0 1239--1242, sep 2013.
+\newblock ISSN 0036-8075.
+\newblock \doi{10.1126/science.1239352}.
+\newblock URL \url{http://www.sciencemag.org/cgi/doi/10.1126/science.1239352}.
+
+\bibitem[Pinsky et~al.(2018)Pinsky, Reygondeau, Caddell, Palacios-Abrantes,
+  Spijkers, and Cheung]{pinsky_2018}
+Malin~L Pinsky, Gabriel Reygondeau, Richard Caddell, Juliano Palacios-Abrantes,
+  Jessica Spijkers, and William W~L Cheung.
+\newblock Preparing ocean governance for species on the move.
+\newblock \emph{Science}, 360\penalty0 (6394):\penalty0 1189--1191, jun 2018.
+\newblock ISSN 0036-8075.
+\newblock \doi{10.1126/science.aat2360}.
+\newblock URL
+  \url{http://www.sciencemag.org/lookup/doi/10.1126/science.aat2360}.
+
+\bibitem[Poloczanska et~al.(2013)Poloczanska, Brown, Sydeman, Kiessling,
+  Schoeman, Moore, Brander, Bruno, Buckley, Burrows, Duarte, Halpern, Holding,
+  Kappel, O'Connor, Pandolfi, Parmesan, Schwing, Thompson, and
+  Richardson]{poloczanska_2013}
+Elvira~S. Poloczanska, Christopher~J. Brown, William~J. Sydeman, Wolfgang
+  Kiessling, David~S. Schoeman, Pippa~J. Moore, Keith Brander, John~F. Bruno,
+  Lauren~B. Buckley, Michael~T. Burrows, Carlos~M. Duarte, Benjamin~S. Halpern,
+  Johnna Holding, Carrie~V. Kappel, Mary~I. O'Connor, John~M. Pandolfi, Camille
+  Parmesan, Franklin Schwing, Sarah~Ann Thompson, and Anthony~J. Richardson.
+\newblock Global imprint of climate change on marine life.
+\newblock \emph{Nat Clim Chang}, 3\penalty0 (10):\penalty0 919--925, oct 2013.
+\newblock ISSN 1758-{678X}.
+\newblock \doi{10.1038/nclimate1958}.
+\newblock URL \url{http://www.nature.com/articles/nclimate1958}.
+
+\end{thebibliography}

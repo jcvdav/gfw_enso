@@ -73,17 +73,25 @@ Let's go through the results
 
 \begin{figure}
 \centering
-\includegraphics{../img/trends_by_gear.pdf}
+\includegraphics{img/trends_by_gear.pdf}
 \caption{Trends in fishing hours by gear and foreign}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics{img/teleconnected_3months.pdf}
+\caption{ENSO-teleconnected Ocean Regions}
 \end{figure}
 
 \clearpage
 
-\input{DID}
+\input{tab/DID.tex}
+
+\clearpage
 
 \begin{figure}
 \centering
-\includegraphics{../img/coef_estimates.pdf}
+\includegraphics{img/coef_estimates.pdf}
 \caption{Coefficient estimates for the models ran above. Graphs on the left show estimates after the hyperbolic sine transformation of hours. Right side show no transformation of hours.
  Model numbers (x - axis) correspond to the columns in table 1 (1 - 4) and table 2 (5 - 8).}
 \end{figure}
@@ -101,7 +109,7 @@ Trawlers: Are species as impacted by ENSO events?
 
 \begin{figure}
 \centering
-\includegraphics{../img/fishing_raster.pdf}
+\includegraphics{img/fishing_raster.pdf}
 \caption{Fishing effort (hours) by gear and foreign fishing}
 \end{figure}
 
@@ -110,7 +118,7 @@ Trawlers: Are species as impacted by ENSO events?
 
 \begin{figure}
 \centering
-\includegraphics{../img/nino_gfw.pdf}
+\includegraphics{img/nino_gfw.pdf}
 \caption{Timeseries of nino3 index (detrended) for A) The entire length
 and B) timespan matching GFW data}
 \end{figure}
@@ -120,7 +128,7 @@ and B) timespan matching GFW data}
 
 \begin{figure}
 \centering
-\includegraphics{../img/trends_by_gear.pdf}
+\includegraphics{img/trends_by_gear.pdf}
 \caption{Trends in fishing hours by gear and foreign}
 \end{figure}
 
@@ -155,14 +163,14 @@ log(FF_{t}) = \psi + \delta ENSO_{t} + \sum_{p=1}^{N} \kappa_{p} t^p + \mu_{t}
 
 \begin{figure}
 \centering
-\includegraphics{../img/cor_sst_nino3.pdf}
+\includegraphics{img/cor_sst_nino34.pdf}
 \caption{Monthly correlations between SST and nino3 index. Numbers above each pannel indicate the month (1 = Jan, 12 = Dec).
 Red zones indicate the pearson's correlation coefficient was \textgreater{} 0 and p \textless{} 0.1.}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics{../img/cor_sst_nino3_var.pdf}
+\includegraphics{img/cor_sst_nino34_var.pdf}
 \caption{ENSO teleconnection depending on number of months. Number above figures indicate the minimum number of months for which a particular
 parcel was correlated to nino3 (red). For example, the panel 6 indicates that all red regions where SST showed a positive ( r \textgreater{} 0)
 and significant (p \textless{} 0.1) correlation with nino3 index for at least 6 months.}
@@ -173,7 +181,7 @@ and significant (p \textless{} 0.1) correlation with nino3 index for at least 6 
 
 \newpage
 
-\bibliography{./references}{}
+\bibliography{references}
 
 %% Here is the endmatter stuff: Supplementary Info, etc.
 %% Use \item's to separate, default label is "Acknowledgements"

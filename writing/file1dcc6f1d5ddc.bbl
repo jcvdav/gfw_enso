@@ -1,0 +1,22 @@
+\begin{thebibliography}{2}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Burbidge et~al.(1988)Burbidge, Magee, and Robb]{Burbidge:1988}
+John~B Burbidge, Lonnie Magee, and A~Leslie Robb.
+\newblock Alternative transformations to handle extreme values of the dependent
+  variable.
+\newblock \emph{J. Am. Stat. Assoc.}, 83\penalty0 (401):\penalty0 123--127,
+  1988.
+
+\bibitem[Card and DellaVigna(2017)]{Card:2017}
+David Card and Stefano DellaVigna.
+\newblock What do editors maximize? evidence from four leading economics
+  journals.
+\newblock Working Paper 23282, National Bureau of Economic Research, March
+  2017.
+
+\end{thebibliography}
