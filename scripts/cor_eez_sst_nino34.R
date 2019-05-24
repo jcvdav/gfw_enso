@@ -52,18 +52,26 @@ r <- rasters$path %>%
   future_map(aggregate, fact = 24, .progress = TRUE) %>%
   stack()
 
+r <- stack(rasters$path, varname = "sst4") %>% 
+  aggregate(fact = 24)
+
 # From the raster names, generate layer names to join raster data witn nino34 data
 layers <- paste(rasters$year, rasters$month, sep = "-")
 
 # Read exclusive economic zones
-eez <- read_sf(dsn = here("raw_data", "spatial", "EEZ"), layer = "eez_v10")
+eez <- read_sf(dsn = here("raw_data", "spatial", "EEZ"),
+               layer = "eez_v10")
 
 # Convert eez to sp object for friendly extraction
 eez_sp <- as_Spatial(eez)
 
 # This produces a matrix with one row per
 # eez and one column per raster image (year, month)
-v <- extract(r, eez_sp, method = "simple", fun = mean, na.rm = T)
+v <- extract(r,
+             eez_sp,
+             method = "simple",
+             fun = mean,
+             na.rm = T)
 
 # This combines the eez and monthly temperatures into a
 # tidy data.frame
