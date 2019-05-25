@@ -1,3 +1,8 @@
+########################
+#   prep_model_data   ##
+########################
+
+
 # Load packages
 library(startR)
 library(raster)
@@ -38,7 +43,9 @@ treatment_3 <- treatment_regions %>%
          longitude = round(longitude, digits = 2))
 
 # Read the gridded effort data (see scripts/download_gridded_ff_by_gear_country)
-gridded_ff <- readRDS(file = here("raw_data", "gridded_ff_by_gear_country.rds"))
+gridded_ff <- readRDS(file = here("raw_data", "gridded_ff_by_gear_country.rds")) %>% 
+  mutate(fishing = fishing == "TRUE",
+         top_countries = top_countries == "TRUE")
 
 # nino34 index
 nino34 <- read.csv(here::here("data","all_indices.csv"),
@@ -47,64 +54,38 @@ nino34 <- read.csv(here::here("data","all_indices.csv"),
                             month_n %in% c(3, 4, 5) ~ "spring",
                             month_n %in% c(6, 7, 8) ~ "summer",
                             TRUE ~ "fall")) %>% 
-  filter(year > 1950) %>% 
+  filter(year > 2010) %>% 
   mutate(date = lubridate::date(date)) %>% 
   select(year, month = month_n, date, nino34anom)
 
-model_data <- gridded_ff %>% 
-  filter(is_foreign) %>% 
+# Create model data for purse seiners
+model_data_ps <- gridded_ff %>% 
+  filter(foreign,
+         fishing,
+         best_label == "tuna_purse_seines") %>%
   left_join(nino34, by = c("year", "month", "date")) %>% 
   left_join(treatment_3, by = c("longitude", "latitude")) %>% 
   rename(treated = tele_binary) %>% 
   mutate(treated = treated * 1,
-         log_hours = log(hours + 1)) %>% #log transformation
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
   mutate(month = as.factor(month))
 
-model_data2 <- model_data %>% 
-  filter(best_label %in% c("drifting_longliness", "tuna_purse_seines")) %>% 
-  drop_na(treated) %>% 
-  group_by(year, month, date, eez_iso3, nino34anom, treated, best_label) %>% 
-  summarize(hours = sum(hours)) %>% 
-  ungroup() %>% 
-  mutate(treated = treated == 1,
-         region = ifelse(treated, "ENSO-teleconnected", "Not connected"))
+# Create model data for longliners
+model_data_ll <- gridded_ff %>% 
+  filter(foreign,
+         fishing,
+         !best_label == "tuna_purse_seines") %>%
+  left_join(nino34, by = c("year", "month", "date")) %>% 
+  left_join(treatment_3, by = c("longitude", "latitude")) %>% 
+  rename(treated = tele_binary) %>% 
+  mutate(treated = treated * 1,
+         hours2 = log(hours + sqrt(1 + hours ^ 2))) %>% #Hyperbolic transformation
+  mutate(month = as.factor(month))
 
-ggplot(data = model_data2, mapping = aes(x = nino34anom, y = hours, color = region, group = treated)) +
-  geom_smooth(method = "loess") +
-  geom_smooth(method = "lm", linetype = "dashed", se = F) +
-  # facet_wrap(~best_label, scales = "free_y", ncol = 1) +
-  theme_bw() +
-  scale_color_brewer(palette = "Set1") +
-  labs(x = "NINO34 anom", y = "Foreign hours")
+## Save the daa
+saveRDS(object = model_data_ps,
+        file = here("data", "model_data_ps"))
 
-fit_all <- function(data){
-  
-  models <- list(base = "hours ~ nino34anom",
-                 country = "hours ~ nino34anom + eez_iso3",
-                 country_month = "hours ~ nino34anom + eez_iso3 + month")
-  
-  model_frame <- tibble(model = models) %>%
-    mutate(model_name = names(model),
-           model = map(model, as.formula),
-           fit = map(model, ~lm(., data = data), data = data))
-}
-
-model1 <- model_data2 %>% 
-  group_by(treated) %>% 
-  nest() %>% 
-  fit_all()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+saveRDS(object = model_data_ll,
+        file = here("data", "model_data_ll"))
 

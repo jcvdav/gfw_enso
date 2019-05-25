@@ -3,6 +3,8 @@
 library(here)
 library(raster)
 library(sf)
+library(furrr)
+library(tidyverse)
 
 # Function to fix days in parallel
 fix_dates <- function(x){
@@ -38,19 +40,7 @@ rasters <- paste0(here("raw_data",
   magrittr::set_colnames(value = "path") %>% 
   mutate(year = str_extract(string = path, pattern = "\\d{4}")) %>% 
   mutate(year = as.numeric(year),
-         month = rep(1:12, 15)) %>% 
-  head(60)
-
-# Parallel, which needs more RAM...
-# Set paralellizing options
-options(future.globals.maxSize = 120 * 133 * 1024^2) # Allows for a max size of 120Gb transfer
-plan(multiprocess)
-# Read and aggregate all rasters
-r <- rasters$path %>%
-  set_names(nm = rasters$path) %>%
-  future_map(raster, varname = "sst4", .progress = TRUE) %>%
-  future_map(aggregate, fact = 24, .progress = TRUE) %>%
-  stack()
+         month = rep(1:12, 15))
 
 r <- stack(rasters$path, varname = "sst4") %>% 
   aggregate(fact = 24)
@@ -86,18 +76,33 @@ eez_sst_nino34 <- eez %>%
   future_map_dfr(fix_dates) %>% 
   left_join(nino34test, by = c("year", "month"))
 
-ggplot(eez_sst_nino34, aes(x = month, y = sst, group = ISO_Ter1)) +
+ggplot(eez_sst_nino34,
+       aes(x = lubridate::date(paste(year, month, 15, sep = "-")), y = sst, group = ISO_Ter1)) +
   geom_line()
 
 eez_sst_nino34_cor_df <- eez_sst_nino34 %>% 
   group_by(ISO_Ter1, month) %>%
-  mutate(n = n()) %>%
-  ungroup() %>%
-  filter(n > 3) %>%
-  group_by(longitude, latitude, month) %>%
   summarize(mean_sst = mean(sst),
             r = cor.test(sst, nino34anom)$estimate,
             p = cor.test(sst, nino34anom)$p.value) %>% 
   ungroup() %>%  
   mutate(tele = ifelse((p < 0.1 & r > 0), 1, 0))
+
+# I can simplify the EEZs and then add the df above
+# simple_eez <- eez %>%
+#   st_simplify(dTolerance = 1)
+# 
+# Then I can produce a plot for the correlation between nino34
+# and sst for all the months of january, for example:
+# simple_eez %>% 
+#   select(ISO_Ter1) %>% 
+#   left_join(eez_sst_nino34_cor_df, by = "ISO_Ter1") %>% 
+#   filter(month == 1) %>% 
+#   ggplot(aes(fill = r)) + 
+#   geom_sf() +
+#   scale_fill_viridis_c(option = "A")
+
+write.csv(x = eez_sst_nino34_cor_df,
+          file = here("data", "eez_sst_nino34_cor_df.csv"),
+          row.names = F)
 
