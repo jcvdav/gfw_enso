@@ -1,0 +1,47 @@
+---
+title: "Foreign fishing is associated with the global climate"
+author: |
+  | Villaseñor-Derbez J.C.
+  | Oremus, K
+date: "5/6/2019"
+output: bookdown::pdf_document2
+---
+
+```{r, echo = F}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+
+
+suppressPackageStartupMessages({
+  library(here)
+})
+```
+
+# Introduction
+
+# Methods
+
+## Model
+
+## Identification strategy
+
+```{r, fig.cap = "ENSO-teleconnection and NINO3.4 anomaly. A) Red (blue) indicates an ENSO teleconnected (weakly affected) Exclusive Economic Zones. The NINO3.4 region is shown as a dashed black line (5N-5S, 170W-120W). B) Time series of NINO3.4 Anomaly since 2002. The gray polygon in shows the periof for which vessel-tracking data is available."}
+knitr::include_graphics(here("writing", "img", "map_treated_eezs.png"))
+```
+
+## Data
+
+## Analyses
+
+# Results
+
+# Discussion
+
+# Conclusion
+
+# Supplementary materials
+
+```{r, fig.cap = "ENSO-teleconnection and NINO3.4 anomaly. A) Red (blue) indicates an ENSO teleconnected (weakly affected) Exclusive Economic Zones. The NINO3.4 region is shown as a dashed black line (5N-5S, 170W-120W). B) Time series of NINO3.4 Anomaly since 2002. The gray polygon in shows the periof for which vessel-tracking data is available."}
+knitr::include_graphics(here("writing", "img", "ff_date_time.png"))
+```

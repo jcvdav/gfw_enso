@@ -4,24 +4,27 @@ library(here)
 library(tidyverse)
 
 # Load data
-model_data_ps <- readRDS(file = here("data", "model_data_ps")) %>% 
-  filter(top_countries)
+model_data_ps <- readRDS(file = here("data", "model_data_ps.rds")) %>% 
+  filter(top_countries) %>% 
+  filter(year > 2012) %>% 
+  mutate(treated = treated == 1) %>% 
+  drop_na()
 
-model_data_ll <- readRDS(file = here("data", "model_data_ll")) %>% 
-  filter(top_countries)
+model_data_ll <- readRDS(file = here("data", "model_data_ll.rds")) %>% 
+  filter(top_countries) %>% 
+  filter(year > 2012) %>% 
+  mutate(treated = treated == 1) %>% 
+  drop_na()
 
-# Run the regressions
-ps1 <- lm(hours2 ~ nino34anom * treated, data = model_data_ps)
-ps2 <- lm(hours2 ~ nino34anom * treated + month, data = model_data_ps)
-ps3 <- lm(hours2 ~ nino34anom * treated + month + best_flag, data = model_data_ps)
+ggplot(model_data_ps, aes(x = nino34anom, y = hours_pct, color = treated, group = treated)) +
+  geom_smooth(method = "loess") +
+  scale_color_brewer(palette = "Set1")
 
-# Run the regressions
-ll1 <- lm(hours2 ~ nino34anom * treated, data = model_data_ll)
-ll2 <- lm(hours2 ~ nino34anom * treated + month, data = model_data_ll)
-ll3 <- lm(hours2 ~ nino34anom * treated + month + best_flag, data = model_data_ll)
+# Run the regressions here
 
 
-models <- list(ps1, ps2, ps3, ll1, ll2, ll3)
+
+models <- list(ps1, ps2, ll1, ll2)
 
 # Stargazer table
 stargazer::stargazer(models, 
