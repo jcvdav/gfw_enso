@@ -4,7 +4,11 @@ author: |
   | Villaseñor-Derbez J.C.
   | Oremus, K
 date: "5/6/2019"
-output: bookdown::pdf_document2
+output:
+  pdf_document:
+    toc: no
+    citation_package: natbib
+bibliography: ../references.bib
 ---
 
 ```{r, echo = F}
@@ -20,28 +24,120 @@ suppressPackageStartupMessages({
 
 # Introduction
 
+Warming oceans are causing marine taxa to redistribute poleward and to deeper waters \citep{Pinsky:2013}. As species shift poleward, stocks are expected to move out of, into, and across Exclusive Economic Zones \citep{poloczanska_2013}, potentially having major implications for fisheries management and livelihoods of these countries. This problem has led to calls from the scientific community to generate institutions that can provide resilience to climate variation and prepare ocean governance for "species on the move" \citep{Pinsky:2018}. However, the economic ramifications of species redistribution have not been quantified. We combine vessel-detection technology and empirical identification strategies to quantify the effect of climate variability (\emph{i.e.} ENSO) on foreign fishing[^1].
+
+[1]: We call it *foreign fishing*, not illegal fishing, because international agreements may, in fact, allow for this.
+
 # Methods
 
-## Model
-
 ## Identification strategy
+
+Short-term climate variation like El Niño Southern Oscillation (ENSO) can also drive this redistribution. For example, tuna in the western pacific move longitudinally across EEZs as ENSO events develop. As productivity shifts longitudinally, fishing effort follows \citep{aqorau:2018}. Some Pacific Island Nations (known as the Parties to the Nauru Agreement) have responded by using a vessel-day scheme (similar to a cap-and-trade regulation) that allows for fishing rights to be transferred across EEZs.
+
+In the Eastern Pacific, positive ENSO phases are known to increase thermocline depth causing species such as tuna to swim deeper in search of cooler temperatures. This facilitates escapement of tuna which swim under purse seine nets, and increases the proportion of null sets\footnote{Null sets are described as events where purse seiners cast their nets around tuna, but these manage to escape under the net before the set is completed.} in Mexican tuna purse seiners \citep{dreyfusleon_2015}.
+
+Temperature is one of the main environmental variables that drives species redistribution \citep{Pinsky:2013}, and climate indices can be useful summaries of systemic, environmental variation \citep{Meng:2016}. We use a time series of ENSO anomalies (NINO3.4 anomaly; Fig 2B) and combine it with a spatially-explicit time series of global Sea Surface Temperature (SST) to identify Exclusive Economic Zones where changes in NINO3.4 correspond to changes in SST (Fig. 1A). This approach has been previously used to identify "ENSO-teleconnected regions" in land \citep{hsiang_2011}.
+
+ENSO events occur stochastically. As such, our units of treatment (Exclusive Economic Zones) cannot chose to belong to the ENSO-teleconnected or weakly affected regions. We can therefore assume that treatment group is assignment as if random. Climate variation will affect ENSO-teleconnected EEZs only, often leading to a reduction in productivity and fish catchability\citep{dreyfusleon_2015}. Therefore, we would expect fishers to reallocate to track the productivity of waters.
+
+## Data
+
+We use data from Global Fishing Watch ([GFW](globalfishingwatch.org/map)) to quantify the effect of ENSO on foreign fishing. The vessel-detection database is a panel of fishing vessels for which we observe flag, gear, position (\emph{i.e.} latitude, longitude) and duration of fishing events (hours) from 2012 to present \citep{Kroodsma:2018}. Our dataset contains information for a total of 26000 vessels from 13 countries. We define foreign fishing as any fishing event in which a vessel's reported flag does not match the jurisdiction of the Exclusive Economic Zone in which fishing takes place, and restrict our analyses to tuna purse seiners. Purse seiners use nets to enclose large schools of fish and often operate in coastal waters, often within a countrie's jurisdiction.
 
 ```{r, fig.cap = "ENSO-teleconnection and NINO3.4 anomaly. A) Red (blue) indicates an ENSO teleconnected (weakly affected) Exclusive Economic Zones. The NINO3.4 region is shown as a dashed black line (5N-5S, 170W-120W). B) Time series of NINO3.4 Anomaly since 2002. The gray polygon in shows the periof for which vessel-tracking data is available."}
 knitr::include_graphics(here("writing", "img", "map_treated_eezs.png"))
 ```
 
-## Data
-
 ## Analyses
+
+We are interested in estimating the effect of ENSO on foreign fishing. The latest NINO event was recorded in 2015-2016, which coincides with the addition of new satellites to the constellation that can track AIS signals. The addition of satellites increases coverage, which leads to an *apparent* increase in fishing effort (Fig2A). However, both foreign and domestic fishing effort would be equally affected by the increased coverage. We therefore calculate foreign fishing as a percent of total fishing (Fig 2C-D). The remaining variation can plausibly be explained by ENSO.
+
+
+```{r, fig.cap = "ENSO-teleconnection and NINO3.4 anomaly. Red (blue) indicates an ENSO teleconnected (weakly affected) Exclusive Economic Zones. A) Foreign fishing through time, the apprent increase is caused by the addition of satellites. B) Foreign fishing against NINO3.3 anomaly. C) Foreign Fishing as a proportion of Total Fishing through time, the temporal trend is removed. D) Foreign Fishing as a proportion of Total Fishing against NINO3.4 anomaly. All lines represent a loess estimator across data a the contry-month level, and shaded areas represent SE."}
+knitr::include_graphics(here("writing", "img", "ff_date_time.png"))
+```
+
+Our design contains two main groups: ENSO-teleconnected and weakly-affected regions. Our treatment is the NINO3.4 index. We use OLS regression to estimate the effects of ENSO on Foreign Fishing for each (blue, red) region:
+
+$$
+FF_{t,c} = \beta_0 + \beta_1 ENSO + \phi_{t} + \lambda_{c} + \epsilon_{tc}
+$$
+
+
+$FF_{gct}$ represents foreign fishing as a proportion of total fishing.  $\beta_0$ is a constant and $\beta_1$ captures the linear effect of ENSO, $\phi_{t}$ are monthly fixed effects and $\lambda_{c}$ are country fixed effects.
+
+Similarly, a difference-in-differences approach can estimate the change in $FF$ of connected regions relative to non-connected regions:
+
+$$
+FF_{t,c} = \beta_0 + \beta_1 ENSO + \beta_2 Connected + \beta_3 ENSO \times Connected + \phi_{t} + \lambda_{c} + \epsilon_{tc}
+$$
+
+In this case, $\beta_2$ captures the difference between connected and weakly affected regions, and $\beta_3$ captures the linear effect of ENSO on affected regions compared to regions unaffected by ENSO. . The treatment is ENSO and it is interacted with a dummy, $Connected$, that equals 1 for EEZs that are ENSO-affected and 0 for unaffected-ENSO EEZs.
+
+```{r}
+# Load packages
+library(startR)
+library(here)
+library(tidyverse)
+
+# Load data
+model_data_ps <- readRDS(file = here("data", "model_data_ps.rds")) %>% 
+  filter(year > 2012) %>% 
+  drop_na()
+
+connected <- model_data_ps %>% 
+  filter(treated == 1)
+
+not_connected <- model_data_ps %>% 
+  filter(treated == 0)
+
+
+model1 <- lm(hours_pct ~ nino34anom + as.character(month) + eez_iso3, data = connected)
+model2 <- lm(hours_pct ~ nino34anom + as.character(month) + eez_iso3, data = not_connected)
+model3 <- lm(hours_pct ~ nino34anom * treated + as.character(month) + eez_iso3, data = model_data_ps)
+```
+
+```{r, results = "asis"}
+list(model1, model2, model3) %>% 
+  stargazer::stargazer(se = estimatr::starprep(., se_type = "HC3"),
+                       single.row = T,
+                       header = F,
+                       omit = c("eez_iso3", "month"),
+                       title = "Effect of ENSO (NINO3.4 anomaly) of Foreign Fishing. Numbers in parentheses are heteroskedastic-robust standard errors",
+                       digits = 4)
+```
+
 
 # Results
 
+We find that a one-unit increase in NINO3.4 index causes a decrease of foreign fishing in ENSO-teleconnected areas and an equivalent increse in foreign fishing for weakly-affected areas. The difference-in-differences approach shows a similar pattern, in which foreign fishing for connected regions decreases, relative to weakly-affected regions. However, none of these effects are statistically significant.
+
 # Discussion
 
-# Conclusion
+Our results appear to have the expected directionality. However, I believe we need to rethink our identification strategy and the way in which we intend to tease appart the effect of ENSO. Imagine a world where there are three contiguous EEZs. The first two are ENSO-teleconnected and the last one is weakly-affected. The first two share a stock of fish A, and the last one has one stock of fish B. Fishing effort within them is distributed such that profits are maximized and the system is at equilibrium.
 
-# Supplementary materials
+Under our current deffinition, an ENSO event would affect productivity of waters in EEZs 1 and 2, but not 3. Moreover, ENSO may affect productivity of 1 and 2 in different ways, perhaps decreasing productivity in 1 and increasing it in 2 - this is the case of ENSO between Peru and Chile - yet 3 would remain unchanged. This would cause fishing effort in 1 to relocate to 2, but not 3. However, total effort in 1 and 2 may stay relatively constant in aggregate, masking the fact that effort was redistributed.
 
-```{r, fig.cap = "ENSO-teleconnection and NINO3.4 anomaly. A) Red (blue) indicates an ENSO teleconnected (weakly affected) Exclusive Economic Zones. The NINO3.4 region is shown as a dashed black line (5N-5S, 170W-120W). B) Time series of NINO3.4 Anomaly since 2002. The gray polygon in shows the periof for which vessel-tracking data is available."}
-knitr::include_graphics(here("writing", "img", "ff_date_time.png"))
-```
+I belive that in order to accurately identify the effects of ENSO variation on foreign fishing, we need to further partition our ENSO-teleconnected EEZs as positively or negatively affected.
+
+
+# References
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

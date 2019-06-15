@@ -20,28 +20,28 @@ nino34test <- all_indices %>%
 
 date_hours <- ggplot(model_data_ps, aes(x = date, y = hours, color = treated, group = treated)) +
   geom_smooth(method = "loess") +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1", direction = -1) +
   labs(x = "Date", y = "FF") +
   ggtheme_plot() +
   theme(legend.position = "None")
 
 nino_hours <- ggplot(model_data_ps, aes(x = nino34anom, y = hours, color = treated, group = treated)) +
   geom_smooth(method = "loess") +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1", direction = -1) +
   labs(x = "NINO 3.4 Anomaly", y = "FF") +
   ggtheme_plot() +
   theme(legend.position = "None")
 
 date_pct <- ggplot(model_data_ps, aes(x = date, y = hours_pct, color = treated, group = treated)) +
   geom_smooth(method = "loess") +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1", direction = -1) +
   labs(x = "Date", y = "FF / TF") +
   ggtheme_plot() +
   theme(legend.position = "None")
 
 nino_pct <- ggplot(model_data_ps, aes(x = nino34anom, y = hours_pct, color = treated, group = treated)) +
   geom_smooth(method = "loess") +
-  scale_color_brewer(palette = "Set1") +
+  scale_color_brewer(palette = "Set1", direction = -1) +
   labs(x = "NINO 3.4 Anomaly", y = "FF / TF") +
   ggtheme_plot() +
   theme(legend.position = "None")
@@ -67,8 +67,6 @@ hours <- plot_grid(date_hours, nino_hours, date_pct, nino_pct, ncol = 2, labels 
 p <- plot_grid(hours, nino34, ncol = 1, rel_heights = c(2, 1), labels = c("", "E"))
 
 ggsave(plot = p,
-       filename = here("writing", "img", "ff_date_time.png"),
+       filename = here::here("writing", "img", "ff_date_time.png"),
        width = 4,
        height = 5)
-
-
