@@ -40,7 +40,8 @@ r_int <- r[[brick_info$name]] %>%
   rotate() %>% 
   projectRaster(crs = proj)
 
-
+## Create a data.frame and calculate
+## correlations for every month and pixel
 sst_df <- as.data.frame(r_int, xy = T) %>% 
   drop_na() %>% 
   gather(name, sst, -c(x, y)) %>% 
@@ -54,6 +55,11 @@ sst_df <- as.data.frame(r_int, xy = T) %>%
             p = cor.test(sst, nino34anom)$p.value) %>% 
   ungroup() %>%  
   mutate(tele = ifelse((p < 0.05 & r > 0), 1, 0))
+
+# Export the data
+write.csv(x = sst_df,
+          file = here("data", "cor_sst_nino34_2deg.csv"),
+          row.names = F)
 
 if(check){
   # Mean monthly SST
