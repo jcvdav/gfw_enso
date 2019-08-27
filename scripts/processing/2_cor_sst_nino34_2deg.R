@@ -7,7 +7,6 @@ library(raster)
 library(tidyverse)
 
 # Set working parameters
-proj <- "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"
 check <- FALSE # Set to TRUE to run plots at the end
 
 # Load data ############################
@@ -38,7 +37,8 @@ brick_info <- tibble(name = names(r)) %>%
 ## Extract rasters of interest and reproject
 r_int <- r[[brick_info$name]] %>% 
   rotate() %>% 
-  projectRaster(crs = proj)
+  projectRaster(crs = projection(.),
+                over = TRUE)
 
 ## Create a data.frame and calculate
 ## correlations for every month and pixel
@@ -56,7 +56,7 @@ sst_df <- as.data.frame(r_int, xy = T) %>%
   ungroup() %>%  
   mutate(tele = ifelse((p < 0.05 & r > 0), 1, 0))
 
-# Export the data
+ # Export the data
 write.csv(x = sst_df,
           file = here("data", "cor_sst_nino34_2deg.csv"),
           row.names = F)
@@ -100,6 +100,13 @@ if(check){
     facet_wrap(~month) +
     coord_equal() + 
     scale_fill_gradientn(colours = colorRamps::matlab.like(20)) +
-    ggtheme_map() 
+    ggtheme_map()
+  
+  ggplot(sst_df %>% filter(p < 0.05), aes(x = x, y = y, fill = tele)) +
+    geom_raster() +
+    facet_wrap(~month) +
+    coord_equal() + 
+    scale_fill_gradientn(colours = colorRamps::matlab.like(20)) +
+    ggtheme_map()
 }
 
