@@ -7,7 +7,7 @@
 
 # Started writing in 03/07/19
 # By: JCVD
-# Updated in 23/08/19
+# Updated in 27/08/19
 # By; JCVD
 
 # Load libraries
@@ -29,7 +29,8 @@ geometry_precision <- 1000
 wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
                 layer = "WDPA_marine_polygons") %>% 
   filter(MARINE > 1,
-         STATUS %in% c("Designated", "Inscribed", "Established")) %>% 
+         STATUS %in% c("Designated", "Inscribed", "Established"),
+         !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
   st_set_precision(geometry_precision) %>%
   st_transform(crs = proj) %>% 
   st_set_precision(geometry_precision) %>% 
@@ -39,7 +40,8 @@ wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
 wdpa_points <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
                          layer = "WDPA_marine_points") %>% 
   filter(MARINE > 1,
-         STATUS %in% c("Designated", "Inscribed", "Established")) %>% 
+         STATUS %in% c("Designated", "Inscribed", "Established"),
+         !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
   filter(is.finite(REP_AREA)) %>% 
   st_transform(crs = proj) %>% 
   st_buffer(dist = sqrt((.$REP_AREA * 1e+06) / pi)) %>% 
@@ -47,9 +49,16 @@ wdpa_points <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
 
 ## Combine points and polygons
 wdpa <- rbind(wdpa_polygons, wdpa_points) %>% 
-  mutate(STRICT = (IUCN_CAT %in% c("I", "Ia", "Ib", "II")),
-         STATUS_YR = ifelse(STATUS_YR <= 2012, 2012, STATUS_YR)) %>% 
-  st_cast(to = "POLYGON")
+  mutate(STRICT = (IUCN_CAT %in% c("I", "Ia", "Ib", "II"))) %>% 
+  st_cast(to = "POLYGON") %>% 
+  filter(!st_is_empty(.)) %>% 
+  filter(STATUS_YR <= 2012)
+
+# Save clean shapefile
+st_write(obj = wdpa,
+         dsn = here("data", "wdpa_clean"),
+         layer = "wdpa_clean",
+         driver = "ESRI Shapefile")
 
 # Rasterization
 ## Extract dimensions of dataset
@@ -67,30 +76,14 @@ base_raster <- raster(ext = wdpa_ext,
                       val = 1L,
                       crs = proj)
 
-# Create a listcol object by year
-wdpa_nest <- wdpa %>% 
-  group_by(STATUS_YR) %>% 
-  nest() %>% 
-  arrange(STATUS_YR)
+# Create a raster
+wdpa_raster <- fasterize(wdpa, base_raster)
+names(wdpa_raster) <- "MPA"
 
-# Create a raster of MPA coverage for each year
-wdpa_r <- wdpa_nest %>% 
-  mutate(r = map(data, fasterize, raster = base_raster, background = 0))
-
-# Extract the rasters and create a brick
-wdpa_brick <- brick(wdpa_r$r)
-
-# Name each element in the brick
-names(wdpa_brick) <- wdpa_r$STATUS_YR
-
-# Aggregate and calculate the proportion of each
-# cell covered by an MPA
-mpas_large <- aggregate(wdpa_brick,
-                        fact = 10,
-                        fun = mean)
-
-writeRaster(x = mpas_large,
-            filename = here("data", "rasterized_wdpa.nc"))
+# Save the raster
+writeRaster(x = wdpa_raster,
+            filename = here("data", "wdpa_raster.nc"),
+            overwrite = T)
 
 
 
