@@ -16,3 +16,5 @@ data/sst_*
 raw_data/*
 raw_data/gridded_ff_by_gear_country.rds
 slides/*
+data/wdpa_clean.*
+data/wdpa_raster*
