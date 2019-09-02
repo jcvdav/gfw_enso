@@ -5,12 +5,14 @@ library(here)
 library(raster)
 library(tidyverse)
 
-# Set parameters
-proj <- "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"
-
+# Load variables and parameters used everywhere
+source(here("scripts", "processing", "0_setup.R"))
 
 # Read correlations dataframe
 sst_df <- read.csv(here("data", "cor_sst_nino34_2deg.csv"))
+
+# Read the base raster
+base_raster <- raster(here("data", "base_raster.tif"))
 
 # Calculate different definitions of regions
 # tele_1 means that one month per year was teleconnected
@@ -40,8 +42,9 @@ treatment_regions_by_n_months <- sst_df %>%
 treatment_regions <- treatment_regions_by_n_months %>% 
   filter(months == 3) %>% 
   select(x, y, tele_binary) %>% 
-  rasterFromXYZ(crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0") %>% 
-  projectRaster(crs = proj,
+  rasterFromXYZ(crs = proj_lonlat) %>% 
+  projectRaster(base_raster,
+                crs = proj_beh,
                 method = "ngb",
                 over = T)
 

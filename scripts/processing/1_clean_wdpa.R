@@ -18,12 +18,10 @@ library(sf)
 library(fasterize)
 library(tidyverse)
 
+# Load variables and parameters used everywhere
+source(here("scripts", "processing", "0_setup.R"))
+
 # UNEP-WCMC (2019), The World Database on Protected Areas (WDPA) statistics. Cambridge, UK: UNEP- WCMC. Accessed on: [24/08/2019].
-
-# World Behrmann (54017)
-proj <- "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"
-geometry_precision <- 500
-
 # Load the WDPA dataset
 ## Polygons
 wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
@@ -38,26 +36,26 @@ wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
   filter(no_take,
          !WDPAID %in% c(309888, 478191)) %>% 
   st_set_precision(geometry_precision) %>%
-  st_transform(crs = proj) %>% 
+  st_transform(crs = proj_beh) %>% 
   st_set_precision(geometry_precision) %>% 
   select(WDPAID, WDPA_PID, PA_DEF, NAME, DESIG, IUCN_CAT, STATUS, STATUS_YR, ISO3) %>% 
   lwgeom::st_make_valid()
 
 ## Points
-wdpa_points <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
-                         layer = "WDPA_marine_points") %>% 
-  filter(MARINE > 0,
-         !str_detect(tolower(MANG_PLAN), "non-mpa"),
-         STATUS %in% c("Designated", "Inscribed", "Established"),
-         STATUS_YR <= 2012,
-         !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
-  filter(is.finite(REP_AREA),
-         REP_M_AREA > 0.25) %>% 
-  st_transform(crs = proj) %>% 
-  st_buffer(dist = sqrt((.$REP_AREA * 1e6) / pi)) %>% 
-  mutate(no_take = (NO_TAKE == "All") | (NO_TAKE == "Part" & NO_TK_AREA > 0.75 * REP_M_AREA)) %>%
-  filter(no_take) %>% 
-  select(WDPAID, WDPA_PID, PA_DEF, NAME, DESIG, IUCN_CAT, STATUS, STATUS_YR, ISO3)
+# wdpa_points <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
+#                          layer = "WDPA_marine_points") %>% 
+#   filter(MARINE > 0,
+#          !str_detect(tolower(MANG_PLAN), "non-mpa"),
+#          STATUS %in% c("Designated", "Inscribed", "Established"),
+#          STATUS_YR <= 2012,
+#          !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
+#   filter(is.finite(REP_AREA),
+#          REP_M_AREA > 0.25) %>% 
+#   st_transform(crs = proj_beh) %>% 
+#   st_buffer(dist = sqrt((.$REP_AREA * 1e6) / pi)) %>% 
+#   mutate(no_take = (NO_TAKE == "All") | (NO_TAKE == "Part" & NO_TK_AREA > 0.75 * REP_M_AREA)) %>%
+#   filter(no_take) %>% 
+#   select(WDPAID, WDPA_PID, PA_DEF, NAME, DESIG, IUCN_CAT, STATUS, STATUS_YR, ISO3)
 
 # Before we rasterize, we need to create a dictionary for
 # each column of interest. We want to know MPA id, IUCN Cat,
@@ -112,9 +110,14 @@ wdpa_ext <- extent(wdpa_bbox[1], #xmin
 
 # Create base raster
 base_raster <- raster(ext = wdpa_ext,
-                      res = 1000,
+                      res = 5000,
                       val = 1L,
-                      crs = proj)
+                      crs = proj_beh)
+
+# Save the raster for future use
+writeRaster(x = base_raster,
+            filename = here("data", "base_raster.tif"),
+            overwrite = T)
 
 # Create a raster
 ## We will create a different raster for each column

@@ -4,18 +4,14 @@
 library(startR)
 library(here)
 library(raster)
-library(furrr)
 library(tidyverse)
 
-# Define projection
-proj <- "+proj=longlat +datum=WGS84 +no_defs"
-
+# Load variables and parameters used everywhere
+source(here("scripts", "processing", "0_setup.R"))
 
 
 # Get the data
-
-
-if(file.exists(here("data", "gridded_monthly_effort_by_gear.rds"))){
+if(!file.exists(here("data", "gridded_effort.rds"))){
   # Download data from GBQ
   gridded_effort <- get_table(dataset = "enso_gfw",
                               table = "gfw_enso_gridded_monthly_effort_by_gear")
@@ -28,8 +24,10 @@ if(file.exists(here("data", "gridded_monthly_effort_by_gear.rds"))){
   gridded_effort <- readRDS(here("data", "gridded_effort.rds"))
 }
 
+print("Data has been loaded")
+
 # Function to rasterize each month
-my_rasterize <- function(x, res = 0.1, proj = "+proj=longlat +datum=WGS84 +no_defs") {
+my_rasterize <- function(x, res = 0.05, proj) {
   # Create raster
   r <- rasterFromXYZ(x, res = res, crs = proj)
   
@@ -41,40 +39,52 @@ my_rasterize <- function(x, res = 0.1, proj = "+proj=longlat +datum=WGS84 +no_de
   return(r3)
 }
 
-# Set up parallelization
-plan(multiprocess)
 
 # Trawlers
 gridded_effort_trawlers <- gridded_effort %>% 
   filter(best_vessel_class == "trawlers",
-         year < 2018) %>% 
+         year < 2019) %>% 
   select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
   group_by(year, month) %>% 
   nest() %>%
-  mutate(r = future_map(data, my_rasterize))
+  mutate(r = map(data, my_rasterize, proj = proj_lonlat),
+         name = paste(year, month, sep = "-"))
+
+print("Trawlers have been rasterized")
 
 # Seiners
 gridded_effort_seiners <- gridded_effort %>% 
   filter(!best_vessel_class == "trawlers",
-         year < 2018) %>% 
+         year < 2019) %>% 
   select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
   group_by(year, month) %>% 
   nest() %>%
-  mutate(r = future_map(data, my_rasterize))
+  mutate(r = map(data, my_rasterize))
 
-# "Close" background workers
-plan(sequential)
+print("Seiners have been rasterized")
 
 # Add names to each layer before exporting
 
-trawlers <- brick(gridded_effort_trawlers$r)
+trawlers <- stack(gridded_effort_trawlers$r)
+names(trawlers) <- gridded_effort_trawlers$name
 saveRDS(trawlers,
         filename = here("data", "trawlers.rds"))
+writeRaster(x = trawlers,
+            filename = here("data", "trawlers.grd"),
+            format = "raster")
+
+print("Saved trawlers raster")
 
 
-seiners <- brick(gridded_effort_seiners$r)
+seiners <- stack(gridded_effort_seiners$r)
+names(seiners) <- gridded_effort_seiners$name
 saveRDS(seiners,
         filename = here("data", "seiners.rds"))
+writeRaster(x = seiners,
+            filename = here("data", "seiners.grd"),
+            format = "raster")
+
+print("Saved seiners raster")
 
 
 
