@@ -18,7 +18,8 @@ if(!file.exists(here("data", "gridded_effort.rds"))){
   
   # Export the data
   saveRDS(object = gridded_effort,
-          file = here("data", "gridded_effort.rds"))
+          file = here("data", "gridded_effort.rds"),
+          version = 2)
 } else {
   # If the file exists, read it instead
   gridded_effort <- readRDS(here("data", "gridded_effort.rds"))
@@ -68,7 +69,7 @@ print("Seiners have been rasterized")
 trawlers <- stack(gridded_effort_trawlers$r)
 names(trawlers) <- gridded_effort_trawlers$name
 saveRDS(trawlers,
-        filename = here("data", "trawlers.rds"))
+        file = here("data", "trawlers.rds"))
 writeRaster(x = trawlers,
             filename = here("data", "trawlers.grd"),
             format = "raster")
@@ -79,7 +80,7 @@ print("Saved trawlers raster")
 seiners <- stack(gridded_effort_seiners$r)
 names(seiners) <- gridded_effort_seiners$name
 saveRDS(seiners,
-        filename = here("data", "seiners.rds"))
+        file = here("data", "seiners.rds"))
 writeRaster(x = seiners,
             filename = here("data", "seiners.grd"),
             format = "raster")
