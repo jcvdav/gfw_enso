@@ -42,52 +42,65 @@ my_rasterize <- function(x, res = 0.05, proj) {
 
 
 # Trawlers
-gridded_effort_trawlers <- gridded_effort %>% 
-  filter(best_vessel_class == "trawlers",
-         year < 2019) %>% 
-  select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
-  group_by(year, month) %>% 
-  nest() %>%
-  mutate(r = map(data, my_rasterize, proj = proj_lonlat),
-         name = paste(year, month, sep = "-"))
-
-print("Trawlers have been rasterized")
-
-# Seiners
-gridded_effort_seiners <- gridded_effort %>% 
-  filter(!best_vessel_class == "trawlers",
-         year < 2019) %>% 
-  select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
-  group_by(year, month) %>% 
-  nest() %>%
-  mutate(r = map(data, my_rasterize))
-
-print("Seiners have been rasterized")
-
-# Add names to each layer before exporting
-
-trawlers <- stack(gridded_effort_trawlers$r)
-names(trawlers) <- gridded_effort_trawlers$name
-saveRDS(trawlers,
-        file = here("data", "trawlers.rds"))
-writeRaster(x = trawlers,
-            filename = here("data", "trawlers.grd"),
-            format = "raster",
-            overwrite = TRUE)
-
-print("Saved trawlers raster")
+if(!file.exists(here("data", "trawlers.rds"))){
+  # Rasterize at the year-month level
+  gridded_effort_trawlers <- gridded_effort %>% 
+    filter(best_vessel_class == "trawlers",
+           year < 2019) %>% 
+    select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
+    group_by(year, month) %>% 
+    nest() %>%
+    mutate(r = map(data, my_rasterize, proj = proj_lonlat),
+           name = paste(year, month, sep = "-"))
+  
+  print("Trawlers have been rasterized") 
+  
+  # Create a stack and export it
+  trawlers <- stack(gridded_effort_trawlers$r)
+  # Add names
+  names(trawlers) <- gridded_effort_trawlers$name
+  # Save the files
+  saveRDS(trawlers,
+          file = here("data", "trawlers.rds"))
+  writeRaster(x = trawlers,
+              filename = here("data", "trawlers.grd"),
+              format = "raster",
+              overwrite = TRUE)
+}
 
 
-seiners <- stack(gridded_effort_seiners$r)
-names(seiners) <- gridded_effort_seiners$name
-saveRDS(seiners,
-        file = here("data", "seiners.rds"))
-writeRaster(x = seiners,
-            filename = here("data", "seiners.grd"),
-            format = "raster",
-            overwrite = TRUE)
+if(!file.exists(here("data", "seiners.rds"))){
+  # Rasterize at the year-month level
+  gridded_effort_tseiners <- gridded_effort %>% 
+    filter(!best_vessel_class == "trawlers",
+           year < 2019) %>% 
+    select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
+    group_by(year, month) %>% 
+    nest() %>%
+    mutate(r = map(data, my_rasterize, proj = proj_lonlat),
+           name = paste(year, month, sep = "-"))
+  
+  print("Seiners have been rasterized") 
+  
+  # Create a stack and export it
+  seiners <- stack(gridded_effort_seiners$r)
+  # Add names
+  names(seiners) <- gridded_effort_seiners$name
+  # Save the files
+  saveRDS(seiners,
+          file = here("data", "seiners.rds"))
+  writeRaster(x = seiners,
+              filename = here("data", "seiners.grd"),
+              format = "raster",
+              overwrite = TRUE)
+  
+  print("Saved seiners raster")
+}
 
-print("Saved seiners raster")
+
+# END OF SCRIPT
+
+
 
 
 
