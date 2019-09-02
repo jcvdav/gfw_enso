@@ -71,7 +71,7 @@ if(!file.exists(here("data", "trawlers.rds"))){
 
 if(!file.exists(here("data", "seiners.rds"))){
   # Rasterize at the year-month level
-  gridded_effort_tseiners <- gridded_effort %>% 
+  gridded_effort_seiners <- gridded_effort %>% 
     filter(!best_vessel_class == "trawlers",
            year < 2019) %>% 
     select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
