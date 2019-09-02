@@ -72,7 +72,8 @@ saveRDS(trawlers,
         file = here("data", "trawlers.rds"))
 writeRaster(x = trawlers,
             filename = here("data", "trawlers.grd"),
-            format = "raster")
+            format = "raster",
+            overwrite = TRUE)
 
 print("Saved trawlers raster")
 
@@ -83,7 +84,8 @@ saveRDS(seiners,
         file = here("data", "seiners.rds"))
 writeRaster(x = seiners,
             filename = here("data", "seiners.grd"),
-            format = "raster")
+            format = "raster",
+            overwrite = TRUE)
 
 print("Saved seiners raster")
 
