@@ -36,14 +36,15 @@ wdpa_sp <- as_Spatial(wdpa)
 
 ## Extract data from rasters in parallel (sometimes)
 # Extract treatment regions
-wdpa_treatment <- extract(x = treatment_regions,
-                          y = wdpa_sp,
-                          fun = mean,
-                          na.rm = T,
-                          df = T,
-                          sp = T)
+# wdpa_treatment <- extract(x = treatment_regions,
+#                           y = wdpa_sp,
+#                           fun = mean,
+#                           na.rm = T,
+#                           df = T,
+#                           sp = T)
 
 # Extract trawling effort
+library(tictoc)
 tic()
 beginCluster(n = n_cores)
 wdpa_trawling_sp <- extract(x = trawlers[[1:12]],
