@@ -51,7 +51,7 @@ my_rasterize <- function(x, res = 0.05, proj, base_raster) {
                       method = "ngb",
                       over = T)
   
-  return(r3)
+  return(r4)
 }
 
 
