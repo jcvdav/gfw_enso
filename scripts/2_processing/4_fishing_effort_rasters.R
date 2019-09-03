@@ -10,10 +10,6 @@ library(tidyverse)
 # Load variables and parameters used everywhere
 source(here("scripts", "2_processing", "0_setup.R"))
 
-# Get number of available cores - 1
-n_cores <- parallel::detectCores() - 1
-
-
 # Read the base raster
 base_raster <- raster(here("data", "base_raster.tif"))
 

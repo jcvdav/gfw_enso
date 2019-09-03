@@ -6,7 +6,7 @@ library(raster)
 library(tidyverse)
 
 # Load variables and parameters used everywhere
-source(here("scripts", "processing", "0_setup.R"))
+source(here("scripts", "2_processing", "0_setup.R"))
 
 # Read correlations dataframe
 sst_df <- read.csv(here("data", "cor_sst_nino34_2deg.csv"))

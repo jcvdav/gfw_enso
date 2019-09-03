@@ -24,3 +24,6 @@ rm_raster_tmp <- function(){
   # Remove them
   file.remove(here("data", "raster_tmp", raster_tmp_files)) 
 }
+
+# Detect cores for paralellization
+n_cores <- parallel::detectCores() - 1

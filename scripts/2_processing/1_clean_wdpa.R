@@ -19,7 +19,7 @@ library(fasterize)
 library(tidyverse)
 
 # Load variables and parameters used everywhere
-source(here("scripts", "processing", "0_setup.R"))
+source(here("scripts", "2_processing", "0_setup.R"))
 
 # UNEP-WCMC (2019), The World Database on Protected Areas (WDPA) statistics. Cambridge, UK: UNEP- WCMC. Accessed on: [24/08/2019].
 # Load the WDPA dataset
@@ -41,22 +41,6 @@ wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
   select(WDPAID, WDPA_PID, PA_DEF, NAME, DESIG, IUCN_CAT, STATUS, STATUS_YR, ISO3) %>% 
   lwgeom::st_make_valid()
 
-## Points
-# wdpa_points <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
-#                          layer = "WDPA_marine_points") %>% 
-#   filter(MARINE > 0,
-#          !str_detect(tolower(MANG_PLAN), "non-mpa"),
-#          STATUS %in% c("Designated", "Inscribed", "Established"),
-#          STATUS_YR <= 2012,
-#          !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
-#   filter(is.finite(REP_AREA),
-#          REP_M_AREA > 0.25) %>% 
-#   st_transform(crs = proj_beh) %>% 
-#   st_buffer(dist = sqrt((.$REP_AREA * 1e6) / pi)) %>% 
-#   mutate(no_take = (NO_TAKE == "All") | (NO_TAKE == "Part" & NO_TK_AREA > 0.75 * REP_M_AREA)) %>%
-#   filter(no_take) %>% 
-#   select(WDPAID, WDPA_PID, PA_DEF, NAME, DESIG, IUCN_CAT, STATUS, STATUS_YR, ISO3)
-
 # Before we rasterize, we need to create a dictionary for
 # each column of interest. We want to know MPA id, IUCN Cat,
 # and the country where it sits.
@@ -69,25 +53,27 @@ iucn_cats <- c("Ia"  = 1,
                "V"   = 5,
                "VI"  = 6)
 
-## Combine points and polygons
+## Modify our data
 wdpa <- #rbind(wdpa_polygons, wdpa_points) %>% 
   wdpa_polygons %>% 
   filter(st_geometry_type(.) %in% c("POLYGON", "MULTIPOLYGON")) %>% 
   filter(!st_is_empty(.)) %>% 
-  group_by(WDPAID, IUCN_CAT, STATUS_YR, ISO3) %>% 
+  rename(IUCN = IUCN_CAT,
+         YEAR = STATUS_YR) %>% 
+  group_by(WDPAID, IUCN, YEAR, ISO3) %>% 
   summarize(a = 1) %>% 
   select(-a) %>% 
-  mutate(IUCN_CAT_int = iucn_cats[IUCN_CAT],
-         ISO_int = countrycode::countrycode(sourcevar = ISO3,
-                                            origin = "iso3c",
-                                            destination = "iso3n")) %>% 
-  st_cast(to = "POLYGON")
-
-# Save clean shapefile
+  ungroup() %>% 
+    mutate(IUCN_INT = iucn_cats[IUCN],
+           ISO3_INT = countrycode::countrycode(sourcevar = ISO3,
+                                               origin = "iso3c",
+                                               destination = "iso3n")) %>% 
+    st_cast(to = "POLYGON")
+  
+  # Save clean shapefile
 st_write(obj = wdpa,
-         dsn = here("data"),
-         layer = "wdpa_clean",
-         driver = "ESRI Shapefile",
+         dsn = here("data", "wdpa_clean.gpkg"),
+         driver = "GPKG",
          delete_dsn = T)
 
 # Save a csv version without geometries
@@ -139,13 +125,13 @@ wdpa_raster_wdpaid <- fasterize(sf = wdpa,
 ### Now one for country ISO
 wdpa_raster_iso <- fasterize(sf = wdpa,
                              raster = base_raster,
-                             field = "ISO_int",
+                             field = "ISO3_INT",
                              background = NA)
 
 ### Now one for IUCN category
 wdpa_raster_iucn <- fasterize(sf = wdpa,
                               raster = base_raster,
-                              field = "IUCN_CAT_int",
+                              field = "IUCN_INT",
                               background = NA)
 
 
