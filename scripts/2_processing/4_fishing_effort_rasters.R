@@ -31,7 +31,7 @@ if(!file.exists(here("data", "gridded_effort.rds"))){
 print("Data have been loaded")
 
 # Function to rasterize each month
-my_rasterize <- function(x, res = 0.05, proj, base_raster) {
+my_rasterize <- function(x, res = 0.1, proj, base_raster) {
   # Create raster
   r <- rasterFromXYZ(x,
                      res = res,

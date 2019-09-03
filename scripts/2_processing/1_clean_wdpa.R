@@ -31,8 +31,7 @@ wdpa_polygons <- read_sf(dsn = here("raw_data", "spatial", "WDPA_marine"),
          STATUS %in% c("Designated", "Inscribed", "Established"),
          STATUS_YR <= 2012,
          !DESIG_TYPE %in% c("International", "Not Applicable")) %>% 
-  mutate(NO_TAKE = ifelse(WDPAID == 309888, "All", NO_TAKE),
-         no_take = (NO_TAKE == "All") | (NO_TAKE == "Part" & NO_TK_AREA > 0.75 * GIS_M_AREA)) %>% 
+  mutate(no_take = (NO_TAKE == "All") | (NO_TAKE == "Part" & NO_TK_AREA > 0.75 * GIS_M_AREA)) %>% 
   filter(no_take,
          !WDPAID %in% c(309888, 478191)) %>% 
   st_set_precision(geometry_precision) %>%
@@ -96,7 +95,7 @@ wdpa_ext <- extent(wdpa_bbox[1], #xmin
 
 # Create base raster
 base_raster <- raster(ext = wdpa_ext,
-                      res = 5000,
+                      res = 10000,
                       val = 1L,
                       crs = proj_beh)
 

@@ -7,7 +7,7 @@ proj_lonlat <- "+proj=longlat +datum=WGS84 +no_defs"
 proj_beh <- "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs"
 
 # Geometry precisions
-geometry_precision <- 500
+geometry_precision <- 1000
 
 # Temoporary raster locations
 raster::rasterOptions(tmpdir = here::here("data", "raster_tmp"),
