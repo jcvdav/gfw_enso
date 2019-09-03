@@ -4,11 +4,18 @@
 library(startR)
 library(here)
 library(raster)
+library(furrr)
 library(tidyverse)
 
 # Load variables and parameters used everywhere
-source(here("scripts", "processing", "0_setup.R"))
+source(here("scripts", "2_processing", "0_setup.R"))
 
+# Get number of available cores - 1
+n_cores <- parallel::detectCores() - 1
+
+
+# Read the base raster
+base_raster <- raster(here("data", "base_raster.tif"))
 
 # Get the data
 if(!file.exists(here("data", "gridded_effort.rds"))){
@@ -25,24 +32,34 @@ if(!file.exists(here("data", "gridded_effort.rds"))){
   gridded_effort <- readRDS(here("data", "gridded_effort.rds"))
 }
 
-print("Data has been loaded")
+print("Data have been loaded")
 
 # Function to rasterize each month
-my_rasterize <- function(x, res = 0.05, proj) {
+my_rasterize <- function(x, res = 0.05, proj, base_raster) {
   # Create raster
-  r <- rasterFromXYZ(x, res = res, crs = proj)
+  r <- rasterFromXYZ(x,
+                     res = res,
+                     crs = proj)
   
   # Adjust extent
   bb <- extent(-180, 180, -90, 90)
   r2 <- extend(r, bb)
   r3 <- crop(r2, as(bb, "SpatialPolygons"))
+  r4 <- projectRaster(r3,
+                      base_raster,
+                      crs = proj_beh,
+                      method = "ngb",
+                      over = T)
   
   return(r3)
 }
 
 
 # Trawlers
-if(!file.exists(here("data", "trawlers.rds"))){
+if(!file.exists(here("data", "trawlers.tif"))){
+  # Set up parallel processing
+  plan(multiprocess, workers = n_cores)
+  
   # Rasterize at the year-month level
   gridded_effort_trawlers <- gridded_effort %>% 
     filter(best_vessel_class == "trawlers",
@@ -50,27 +67,35 @@ if(!file.exists(here("data", "trawlers.rds"))){
     select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
     group_by(year, month) %>% 
     nest() %>%
-    mutate(r = map(data, my_rasterize, proj = proj_lonlat),
+    mutate(r = future_map(data, my_rasterize,
+                          proj = proj_lonlat,
+                          base_raster = base_raster),
            name = paste(year, month, sep = "-"))
+  
+  # Close connections
+  plan(sequential)
   
   print("Trawlers have been rasterized") 
   
   # Create a stack and export it
   trawlers <- stack(gridded_effort_trawlers$r)
-  # Add names
-  names(trawlers) <- gridded_effort_trawlers$name
+
   # Save the files
-  saveRDS(trawlers,
-          file = here("data", "trawlers.rds"))
   writeRaster(x = trawlers,
-              filename = here("data", "trawlers.grd"),
-              format = "raster",
-              overwrite = TRUE)
+              filename = here("data", "trawlers.tif"))
+  
+  print("Saved trawlers rasters")
+  
+  # Remove temp files from disk
+  rm_raster_tmp()
 }
 
 
 # Seiners
 if(!file.exists(here("data", "seiners.rds"))){
+  # Set up parallel processing
+  plan(multiprocess, workers = n_cores)
+  
   # Rasterize at the year-month level
   gridded_effort_seiners <- gridded_effort %>% 
     filter(!best_vessel_class == "trawlers",
@@ -78,24 +103,27 @@ if(!file.exists(here("data", "seiners.rds"))){
     select(year, month, x = lon_bin_center, y = lat_bin_center, hours) %>% 
     group_by(year, month) %>% 
     nest() %>%
-    mutate(r = map(data, my_rasterize, proj = proj_lonlat),
+    mutate(r = future_map(data, my_rasterize,
+                          proj = proj_lonlat,
+                          base_raster = base_raster),
            name = paste(year, month, sep = "-"))
+  
+  # Close connections
+  plan(sequential)
   
   print("Seiners have been rasterized") 
   
   # Create a stack and export it
   seiners <- stack(gridded_effort_seiners$r)
-  # Add names
-  names(seiners) <- gridded_effort_seiners$name
+
   # Save the files
-  saveRDS(seiners,
-          file = here("data", "seiners.rds"))
   writeRaster(x = seiners,
-              filename = here("data", "seiners.grd"),
-              format = "raster",
-              overwrite = TRUE)
+              filename = here("data", "seiners.tif"))
   
   print("Saved seiners raster")
+  
+  # Remove temp files from disk
+  rm_raster_tmp()
 }
 
 
