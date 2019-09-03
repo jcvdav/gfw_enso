@@ -69,6 +69,7 @@ if(!file.exists(here("data", "trawlers.rds"))){
 }
 
 
+# Seiners
 if(!file.exists(here("data", "seiners.rds"))){
   # Rasterize at the year-month level
   gridded_effort_seiners <- gridded_effort %>% 
