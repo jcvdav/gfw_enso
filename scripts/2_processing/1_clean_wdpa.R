@@ -128,14 +128,12 @@ writeRaster(x = base_raster,
 wdpa_raster_is_mpa <- fasterize(sf = wdpa,
                                 raster = base_raster,
                                 background = NA)
-names(wdpa_raster_is_mpa) <- "is_mpa"
 
 ### Now, one for WDPA id
 wdpa_raster_wdpaid <- fasterize(sf = wdpa,
                                 raster = base_raster,
                                 field = "WDPAID",
                                 background = NA)
-names(wdpa_raster_wdpaid) <- "WDPAID"
 
 
 ### Now one for country ISO
@@ -143,31 +141,29 @@ wdpa_raster_iso <- fasterize(sf = wdpa,
                              raster = base_raster,
                              field = "ISO_int",
                              background = NA)
-names(wdpa_raster_iso) <- "ISO"
 
 ### Now one for IUCN category
 wdpa_raster_iucn <- fasterize(sf = wdpa,
                               raster = base_raster,
                               field = "IUCN_CAT_int",
                               background = NA)
-names(wdpa_raster_iucn) <- "IUCN_CAT"
 
 
 # Save the rasters
 writeRaster(x = wdpa_raster_is_mpa,
-            filename = here("data", "wdpa_raster_is_mpa.tiff"),
+            filename = here("data", "wdpa_raster_is_mpa.tif"),
             overwrite = T)
 
 writeRaster(x = wdpa_raster_wdpaid,
-            filename = here("data", "wdpa_raster_wdpaid.tiff"),
+            filename = here("data", "wdpa_raster_wdpaid.tif"),
             overwrite = T)
 
 writeRaster(x = wdpa_raster_iso,
-            filename = here("data", "wdpa_raster_iso.tiff"),
+            filename = here("data", "wdpa_raster_iso.tif"),
             overwrite = T)
 
 writeRaster(x = wdpa_raster_iucn,
-            filename = here("data", "wdpa_raster_iucn.tiff"),
+            filename = here("data", "wdpa_raster_iucn.tif"),
             overwrite = T)
 
 
