@@ -19,7 +19,7 @@ all_indices <- read.csv(here("data","all_indices.csv"),
                             TRUE ~ "fall"))
 
 ## Load SST data
-r <- brick("raw_data/spatial/sst.mnmean.nc")
+r <- brick(here("raw_data", "spatial", "sst.mnmean.nc"))
 
 
 # Data processing ############################

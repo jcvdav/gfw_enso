@@ -83,26 +83,9 @@ write.csv(x = wdpa_csv,
           file = here("data", "wdpa_clean.csv"),
           row.names = F)
 
-# Rasterization
-## Extract dimensions of dataset
-wdpa_bbox <- st_bbox(wdpa)
+# Read a reference raster
+base_raster <- raster(here("data", "base_raster.tif"))
 
-## Create extent object
-wdpa_ext <- extent(wdpa_bbox[1], #xmin
-                   wdpa_bbox[3], #xmax
-                   wdpa_bbox[2], #min
-                   wdpa_bbox[4]) #ymax
-
-# Create base raster
-base_raster <- raster(ext = wdpa_ext,
-                      res = 10000,
-                      val = 1L,
-                      crs = proj_beh)
-
-# Save the raster for future use
-writeRaster(x = base_raster,
-            filename = here("data", "base_raster.tif"),
-            overwrite = T)
 
 # Create a raster
 ## We will create a different raster for each column

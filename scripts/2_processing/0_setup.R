@@ -15,6 +15,25 @@ raster::rasterOptions(tmpdir = here::here("data", "raster_tmp"),
                       maxmemory = 12e+09,
                       memfrac = 0.8)
 
+if(!file.exists(here::here("data", "base_raster.tif"))){
+  ## Create extent object
+  ext <- extent(-17700000, #xmin
+                17720000, #xmax
+                -7650000, #min
+                7660000) #ymax
+  
+  # Create base raster
+  base_raster <- raster(ext = ext,
+                        res = 10000,
+                        val = 1L,
+                        crs = proj_beh)
+  
+  # Save the raster for future use
+  writeRaster(x = base_raster,
+              filename = here("data", "base_raster.tif"),
+              overwrite = T)
+}
+
 # Function to remove temp files from disk
 rm_raster_tmp <- function(){
   # Get the files
