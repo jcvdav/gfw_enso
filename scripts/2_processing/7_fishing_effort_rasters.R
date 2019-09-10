@@ -1,5 +1,3 @@
-# Download fishing effort and create rasters
-
 # Load packages
 library(startR)
 library(here)
@@ -38,7 +36,7 @@ rasterize_gear(x = gridded_effort,
 ## Longlines
 rasterize_gear(x = gridded_effort,
                base_raster = base_raster,
-               gear = "drifting",
+               gear = "drifting_longlines",
                n_cores = n_cores)
 
 # END OF SCRIPT

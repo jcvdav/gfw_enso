@@ -8,7 +8,7 @@ rasterize_gear <- function(x, base_raster, gear = "trawlers", n_cores) {
     
     # Rasterize at the year-month level
     gridded_effort_gear <- x %>% 
-      filter(best_vessel_class == "trawlers") %>% 
+      filter(best_vessel_class == gear) %>% 
       select(year, month, x = lon_bin_center, y = lat_bin_center, kilowats) %>% 
       group_by(year, month, x, y) %>% 
       summarize(kilowats = sum(kilowats, na.rm = T)) %>% 

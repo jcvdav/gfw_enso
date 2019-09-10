@@ -9,7 +9,8 @@ install.packages(pkgs = c(
   "lubridate",
   "magrittr",
   "raster",
-  "sf"
+  "sf",
+  "furrr"
   )
 )
 
