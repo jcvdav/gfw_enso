@@ -69,7 +69,7 @@ wdpa <- #rbind(wdpa_polygons, wdpa_points) %>%
                                                destination = "iso3n")) %>% 
     st_cast(to = "POLYGON")
   
-  # Save clean shapefile
+# Save clean shapefile
 st_write(obj = wdpa,
          dsn = here("data", "wdpa_clean.gpkg"),
          driver = "GPKG",

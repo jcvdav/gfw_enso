@@ -70,24 +70,59 @@ writeRaster(x = treatment_pixels_beh,
 
 if(plots){
   
-  # Plot the teleconected pixels
-  
   # Get a coastline
   coast <- ne_countries(returnclass = "sf") %>% 
     sf::st_combine()
   
+  # Get eez
+  eez <- st_read(dsn = here("data", "eez_v10"),
+                 layer = "eez_v10")
+  
+  # Plot the teleconnected pixels by number of months
+  # Crate a dataframe
+  teleconnections_by_months_df <- sst_df %>% 
+    group_by(x, y) %>% 
+    summarize(tele = sum(tele)) %>% 
+    ungroup()
+  
+  teleconnections_by_months <- 
+    ggplot(data = teleconnections_by_months_df) +
+    geom_raster(mapping = aes(x = x, y = y, fill = tele)) +
+    geom_contour(mapping = aes(x = x, y = y, z = tele), color = "black", breaks = c(3, 5)) +
+    geom_sf(data = eez, fill = "transparent", color = "white") +
+    geom_sf(data = coast, color = "black") +
+    scale_fill_gradientn(colors = colorRamps::matlab.like(25)) +
+    ggtheme_map() +
+    guides(fill = guide_colorbar(title = "# of teleconnected\nmonths",
+                                 frame.colour = "black",
+                                 ticks.colour = "black")) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0))
+    
+    ggsave(plot = teleconnections_by_months,
+           filename = here("docs", "img", "teleconnections_by_months.png"),
+           width = 6,
+           height = 3)
+  
+  
+  # Plot the teleconected pixels
+  # Create a dataframe of teleconected pixels
   df <- treatment_pixels_lonlat_df %>% 
     mutate(status = ifelse(tele_binary, "TE", "WA")) %>% 
     drop_na()
   
-  map <- ggplot(data = df) +
+  teleconnected_pixels <- 
+    ggplot(data = df) +
     geom_raster(mapping = aes(x = x, y = y, fill = status)) +
+    geom_sf(data = eez, fill = "transparent", color = "white") +
     geom_sf(data = coast, color = "black") +
     ggtheme_map() +
     scale_fill_brewer(palette = "Set1") +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0))
   
-  ggsave(plot = map,
+  ggsave(plot = teleconnected_pixels,
          filename = here("docs", "img", "teleconnected_pixels.png"),
          width = 6,
          height = 3)

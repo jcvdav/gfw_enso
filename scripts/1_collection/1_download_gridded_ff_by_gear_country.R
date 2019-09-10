@@ -12,21 +12,9 @@ library(tidyverse)
 gff <- get_table(dataset = "enso_gfw",
                  table = "gridded_ff_by_gear_country")
 
-# If the above didn't fail, we now tidy-up our data
-gff <- gff %>%
-  distinct() %>% 
-  mutate(foreign = as.logical(foreign)) %>% 
-  mutate(date = date(paste(year, month, "01", sep = "/"))) %>% 
-  select(year,
-         month,
-         date,
-         longitude = lon_bin_center,
-         latitude = lat_bin_center,
-         best_label = best_vessel_class,
-         best_flag,
-         eez_id,
-         eez_iso3,
-         everything())
+# Store the is_fishing and is_foreign columns as booleans
+gff$is_foreign <- as.logical(gff$is_foreign)
+gff$is_fishing <- as.logical(gff$is_fishing)
 
 # Export the data as rds to keep the present characteristics
 saveRDS(object = gff,
