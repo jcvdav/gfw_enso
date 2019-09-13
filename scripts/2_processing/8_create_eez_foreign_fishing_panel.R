@@ -37,5 +37,5 @@ eez_fishing_effort_treatment_panel <-
 
 # export
 saveRDS(object = eez_fishing_effort_treatment_panel,
-        file = here("eez_fishing_effort_treatment_panel.rds"))
+        file = here("data", "eez_fishing_effort_treatment_panel.rds"))
 
