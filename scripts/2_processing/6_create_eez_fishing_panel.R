@@ -11,7 +11,8 @@ source(here("scripts", "2_processing", "0_setup.R"))
 gridded_effort <- readRDS(here("raw_data", "gridded_ff_by_gear_country.rds")) %>% 
   filter(year < 2019,
          is_fishing) %>% 
-  drop_na(is_foreign)
+  drop_na(is_foreign) %>% 
+  mutate(eez_id = as.numeric(eez_id))
 
 # Create panel for kilowats
 kilowats <- gridded_effort %>% 

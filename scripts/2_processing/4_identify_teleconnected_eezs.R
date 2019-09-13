@@ -17,11 +17,6 @@ treatment_pixels_lonlat <- raster(here("data", "treatment_pixels_lonlat.tif"))
 eez <- st_read(dsn = here("data", "eez_v10"),
                layer = "eez_v10") %>% 
   select(MRGID, GeoName, ISO_Ter1) %>% 
-  # group_by(MRGID, GeoName, ISO_Ter1) %>% 
-  # summarize(a = 1) %>% 
-  # select(-a) %>% 
-  # ungroup() %>% 
-  # st_cast("POLYGON") %>%
   mutate(Area = st_area(.)) %>% 
   filter(!st_is_empty(.))
 
@@ -49,7 +44,6 @@ colnames(eez_isna@data) <- c("MRGID", "GeoName", "ISO_Ter1", "Area", "Prop_na")
 eez2 <- eez %>% 
   left_join(eez_treat@data, by = c("MRGID", "GeoName", "ISO_Ter1", "Area")) %>% 
   left_join(eez_isna@data, by = c("MRGID", "GeoName", "ISO_Ter1", "Area")) %>%
-  filter(Prop_na <= 2/3) %>%
   mutate(status = ifelse(treatment_pixels_lonlat >= 0.5, "TE", "WA"))
 
 # Save teleconected shapefile
