@@ -56,9 +56,12 @@ st_write(obj = eez2,
 coast <- ne_countries(returnclass = "sf") %>% 
   sf::st_combine()
 
+eez3 <- eez2 %>% 
+  filter(Prop_na <= 1)
+
 teleconnected_eez <- 
   ggplot() +
-  geom_sf(data = eez2, aes(fill = status), color = "black") +
+  geom_sf(data = eez3, aes(fill = status), color = "black") +
   geom_sf(data = coast, color = "black", ) +
   ggtheme_map() +
   scale_fill_brewer(palette = "Set1") +

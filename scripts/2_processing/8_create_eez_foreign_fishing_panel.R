@@ -22,7 +22,8 @@ eez_treat <- st_read(here("data", "teleconnected_eez.gpkg")) %>%
   st_set_geometry(NULL) %>% 
   select(eez_id = MRGID,
          eez_iso3 = ISO_Ter1,
-         status_c = status) %>% 
+         status_c = status,
+         area = Area) %>% 
   mutate(eez_iso3 = as.character(eez_iso3),
          status = status_c == "TE")
 

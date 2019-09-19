@@ -27,7 +27,7 @@ nino34 <- read.table(here("raw_data", "indices","nino34.long.data")) %>%
   magrittr::set_colnames(c("year", month.name)) %>% 
   gather(month, nino34, -year)
 
-nino3anom <- read.table(here("raw_data", "indices","nino34.long.anom.data")) %>% 
+nino34anom <- read.table(here("raw_data", "indices","nino34.long.anom.data")) %>% 
   magrittr::set_colnames(c("year", month.name)) %>% 
   gather(month, nino34anom, -year)
 
@@ -48,6 +48,8 @@ soi <- read.table(here("raw_data", "indices","soi_3dp.dat")) %>%
 
 all_indices <- nino3 %>% 
   left_join(nino3anom, by = c("year", "month")) %>% 
+  left_join(nino34, by = c("year", "month")) %>% 
+  left_join(nino34anom, by = c("year", "month")) %>% 
   left_join(nino4, by = c("year", "month")) %>% 
   left_join(nino4anom, by = c("year", "month")) %>% 
   left_join(soi, by = c("year", "month")) %>% 
@@ -58,4 +60,6 @@ all_indices <- nino3 %>%
   arrange(year, month_n)
 
 # Export the data
-write.csv(all_indices, file = here("data","all_indices.csv"), row.names = F)
+write.csv(all_indices,
+          file = here("data","all_indices.csv"),
+          row.names = F)
