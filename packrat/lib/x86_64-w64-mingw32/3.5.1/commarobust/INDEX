@@ -1,6 +1,0 @@
-BMlmSE                  Compute Bell-McCaffrey Standard Errors
-commarobust             Robust Standard Errors
-commarobust_tidy        Tidy Robust Standard Errors
-makerobustpslist        Prepare ps for Stargazer
-makerobustseslist       Prepare Ses for Stargazer
-se_mean                 Obtain the standard error of the mean
