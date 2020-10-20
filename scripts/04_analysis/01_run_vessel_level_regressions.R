@@ -66,15 +66,15 @@ ps_results %>%
   pull(model) %>% 
   make_table(dep_var = "Foreign fishing hours",
              title = "Purse Seines",
-             filename = "vessel_level_purse_seines_regressions_hours.tex")
+             filename = "vessel_level_purse_seines_regressions_hours.html")
 
 # Purse seines energy table
 ps_results %>% 
   filter(str_detect(dep_vars, "kilo")) %>% 
   pull(model) %>% 
   make_table(dep_var = "Foreign fishing kilowatthours",
-             title = "purse_seines",
-             filename = "vessel_level_purse_seines_regressions_kilowatthours.tex")
+             title = "Purse Seines",
+             filename = "vessel_level_purse_seines_regressions_kilowatthours.html")
 
 
 # Longlines
@@ -85,7 +85,7 @@ ll_results %>%
   pull(model) %>% 
   make_table(dep_var = "Foreign fishing hours",
              title = "Longlines",
-             filename = "vessel_level_longlines_regressions_hours.tex")
+             filename = "vessel_level_longlines_regressions_hours.html")
 
 
 # Kilowatthours
@@ -95,4 +95,5 @@ ll_results %>%
   pull(model) %>% 
   make_table(dep_var = "Foreign fishing kilowatthours",
              title = "Longlines",
-             filename = "vessel_level_longlines_regressions_kilowatthours.tex")
+             filename = "vessel_level_longlines_regressions_kilowatthours.html")
+

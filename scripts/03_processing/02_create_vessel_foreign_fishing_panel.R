@@ -14,20 +14,16 @@ all_indices <- read.csv("data/all_indices.csv", stringsAsFactors = F) %>%
          nino34anom_l3 = lag(nino34anom, 3))
 
 # Load vessel data and modify
-data <- read.csv("raw_data/panel.csv",
-                  stringsAsFactors = F) %>% 
-  rename(fishing_kilowatts = fishing_kilowats,
-         kilowatts = kilowats,
-         ninfishing_kilowatts = nonfishing_kilowats) %>% 
+data <- readRDS(here("raw_data", "panel.rds")) %>% 
   group_by(year, month, ssvid) %>% 
   mutate(total_fishing_hours = sum(fishing_hours),
-         total_fishing_kilowatthours = sum(fishing_kilowatts),
+         total_fishing_kilowatthours = sum(fishing_kilowatthours),
          foreign_fishing_hours_share = fishing_hours / total_fishing_hours,
-         foreign_fishing_kilowatthours_share = fishing_kilowatts / total_fishing_kilowatthours) %>% 
+         foreign_fishing_kilowatthours_share = fishing_kilowatthours / total_fishing_kilowatthours) %>% 
   ungroup() %>% 
-  filter(is_foreign == "true") %>% 
+  filter(is_foreign) %>% 
   rename(foreign_fishing_hours = fishing_hours,
-         foreign_fishing_kilowatthours = fishing_kilowatts)
+         foreign_fishing_kilowatthours = fishing_kilowatthours)
 
 vessel_info <- data %>% 
   select(ssvid, gear, flag) %>% 
